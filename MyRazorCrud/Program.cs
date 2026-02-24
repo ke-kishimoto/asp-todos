@@ -29,9 +29,12 @@ app.UseAuthorization();
 app.MapStaticAssets();
 app.MapRazorPages()
    .WithStaticAssets();
-// ★ MVC追加：コントローラーのルートを登録
+// ★ MVC追加：コントローラーの従来ルーティングを登録
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+// ★ Web API追加：[ApiController] の属性ルーティングを有効化
+//   MapControllerRoute は従来ルーティング用のため、APIコントローラーには MapControllers() が必要
+app.MapControllers();
 
 app.Run();
