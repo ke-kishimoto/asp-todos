@@ -1,0 +1,18 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: myrazorcrud-sqlserver
+    environment:
+      # SA パスワード（8文字以上・大小英数字・記号を含む必要あり）
+      SA_PASSWORD: "YourStrong!Passw0rd"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"   # 無償の Developer Edition を使用
+    ports:
+      # ホスト側 1433 → コンテナ側 1433 にマッピング
+      - "1433:1433"
+    volumes:
+      # データを永続化（コンテナを削除してもデータが残る）
+      - sqlserver_data:/var/opt/mssql
+
+volumes:
+  sqlserver_data:

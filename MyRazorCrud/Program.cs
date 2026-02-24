@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using MyRazorCrud.Data;
 using MyRazorCrud.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 // ★ MVC追加：Razorビューを使うControllerを有効化
 builder.Services.AddControllersWithViews();
+
+// ★ EF Core 追加：AppDbContext を DI 登録
+//   - appsettings.json の "DefaultConnection" 接続文字列を使用
+//   - UseSqlServer で SQL Server プロバイダーを指定
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ★追加：インメモリRepoをDI登録
 builder.Services.AddSingleton<InMemoryTodoRepository>();
