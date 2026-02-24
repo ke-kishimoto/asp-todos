@@ -1,0 +1,44 @@
+@*
+  ★ Razor Pages 対応ファイル: Pages/Todos/Create.cshtml
+  ★ MVC のモデル: なし（バリデーションエラー時は ViewData["EnteredTitle"] で復元）
+*@
+
+@{
+    ViewData["Title"] = "Create Todo (MVC)";
+}
+
+<h1>Create Todo <small class="text-muted fs-6">(MVC)</small></h1>
+
+@*
+  ★ Razor Pages: <form method="post"> だけでOK（antiforgery自動付与）
+  ★ MVC        : 同様に <form method="post"> で antiforgery トークンが自動付与される
+  ★ action を省略するとアクションメソッド名が自動解決される
+*@
+<form method="post">
+    <div>
+        <label for="title">Title</label><br />
+        @*
+          ★ Razor Pages: <input asp-for="Title" />
+                          → [BindProperty] の Title プロパティにバインド
+          ★ MVC        : name="title" でアクション引数 string title にバインド
+                          バリデーションエラー時は ViewData で入力値を復元
+        *@
+        <input type="text" name="title" id="title"
+               value="@ViewData["EnteredTitle"]" />
+        @*
+          ★ Razor Pages: <div asp-validation-for="Title"></div>
+          ★ MVC        : asp-validation-summary でモデル全体のエラーを表示
+        *@
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    </div>
+
+    <button type="submit" style="margin-top: 8px;">Create</button>
+</form>
+
+<p>
+    @*
+      ★ Razor Pages: <a asp-page="/Todos/Index">
+      ★ MVC        : <a asp-controller="Todos" asp-action="Index">
+    *@
+    <a asp-controller="Todos" asp-action="Index">Back to List</a>
+</p>

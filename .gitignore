@@ -1,0 +1,68 @@
+## -------------------------------------------------------
+## .NET / ASP.NET Core 標準 .gitignore
+## -------------------------------------------------------
+
+# ビルド成果物
+bin/
+obj/
+
+# Visual Studio のユーザー設定ファイル
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# NuGet パッケージ（restore で再取得可能）
+*.nupkg
+*.snupkg
+**/[Pp]ackages/
+!**/[Pp]ackages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# MSBuild のログ
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# .NET Core ツール
+.dotnet/
+dotnet-tools.json.lock
+
+# Publish 成果物
+**/publish/
+**/PublishProfiles/
+
+# Entity Framework Migrations（生成物は含めるためコメントアウト推奨）
+# Migrations/
+
+# ランタイム設定（自動生成）
+launchSettings.json.user
+
+# 環境変数・シークレット（絶対にコミットしない）
+.env
+.env.*
+appsettings.Development.json
+secrets.json
+**/secrets/
+
+# macOS
+.DS_Store
+__MACOSX/
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# ReSharper
+_ReSharper*/
+*.ReSharper

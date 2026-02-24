@@ -1,0 +1,46 @@
+@*
+  ★ Razor Pages 対応ファイル: Pages/Todos/Edit.cshtml
+  ★ MVC のモデル型: TodoItem
+                   （Razor Pages は EditModel.Input プロパティ経由）
+*@
+@model MyRazorCrud.Models.TodoItem
+
+@{
+    ViewData["Title"] = "Edit Todo (MVC)";
+}
+
+<h1>Edit Todo <small class="text-muted fs-6">(MVC)</small></h1>
+
+@*
+  ★ id はルートパラメーターとして送る必要がある（POST /mvc/todos/edit/{id}）
+  ★ Razor Pages: <form method="post"> だけでOK（URL に id が含まれる）
+  ★ MVC        : asp-route-id="@Model.Id" でルートに id を埋め込む
+*@
+<form method="post" asp-controller="Todos" asp-action="Edit" asp-route-id="@Model.Id">
+    <div>
+        <label asp-for="Title"></label><br />
+        @*
+          ★ Razor Pages: <input asp-for="Input.Title" />
+          ★ MVC        : <input asp-for="Title" />  （Model が TodoItem なので直接バインド）
+        *@
+        <input asp-for="Title" />
+        <div asp-validation-for="Title" class="text-danger"></div>
+    </div>
+
+    <div style="margin-top: 8px;">
+        <label>
+            @*
+              ★ Razor Pages: <input asp-for="Input.Done" />
+              ★ MVC        : <input asp-for="Done" />
+            *@
+            <input asp-for="Done" />
+            Done
+        </label>
+    </div>
+
+    <button type="submit" style="margin-top: 8px;">Save</button>
+</form>
+
+<p>
+    <a asp-controller="Todos" asp-action="Index">Back to List</a>
+</p>

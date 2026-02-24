@@ -1,0 +1,42 @@
+@*
+  ★ Razor Pages 対応ファイル: Pages/Todos/Details.cshtml
+  ★ MVC のモデル型: TodoItem
+                   （Razor Pages は DetailsModel.Item プロパティ経由）
+*@
+@model MyRazorCrud.Models.TodoItem
+
+@{
+    ViewData["Title"] = "Todo Details (MVC)";
+}
+
+<h1>Todo Details <small class="text-muted fs-6">(MVC)</small></h1>
+
+<dl>
+    <dt>ID</dt>
+    @*
+      ★ Razor Pages: @Model.Item.Id  （PageModel の Item プロパティ経由）
+      ★ MVC        : @Model.Id       （Model がそのまま TodoItem）
+    *@
+    <dd>@Model.Id</dd>
+
+    <dt>Title</dt>
+    <dd>@Model.Title</dd>
+
+    <dt>Done</dt>
+    <dd>@Model.Done</dd>
+
+    <dt>Created</dt>
+    <dd>@Model.CreatedAt.ToLocalTime()</dd>
+</dl>
+
+<p>
+    @*
+      ★ Razor Pages: asp-page="/Todos/Edit" asp-route-id="@Model.Item.Id"
+      ★ MVC        : asp-controller="Todos" asp-action="Edit" asp-route-id="@Model.Id"
+    *@
+    <a asp-controller="Todos" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+    |
+    <a asp-controller="Todos" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+    |
+    <a asp-controller="Todos" asp-action="Index">Back to List</a>
+</p>
