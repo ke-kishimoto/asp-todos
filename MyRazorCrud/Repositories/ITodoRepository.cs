@@ -24,4 +24,5 @@ public interface ITodoRepository
     Task<TodoItem> AddAsync(string title);
     Task<bool> UpdateAsync(int id, string title, bool done);
     Task<bool> DeleteAsync(int id);
+    Task<IReadOnlyList<TodoItem>> GetByKeywordAsync(string keyword);
 }

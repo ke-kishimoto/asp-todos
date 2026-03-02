@@ -28,6 +28,13 @@ public class TodosController : Controller
         return View(items);
     }
 
+    [HttpGet("search")]
+    public async Task<IActionResult> search(string keyword)
+    {
+        var items = await _service.GetItemsAsync(keyword);
+        return View(viewName: "index", model: items);
+    }
+
     // GET /mvc/todos/create
     [HttpGet("create")]
     public IActionResult Create()

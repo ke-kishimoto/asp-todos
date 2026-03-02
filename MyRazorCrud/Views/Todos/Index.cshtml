@@ -19,6 +19,11 @@
     <a asp-controller="Todos" asp-action="Create">Create New</a>
 </p>
 
+<form asp-controller="Todos" asp-action="Search" method="get">
+    <input type="text" name="keyword" placeholder="keyword" />
+    <button type="submit">検索</button>
+</form>
+
 <table class="table">
     <thead>
         <tr>

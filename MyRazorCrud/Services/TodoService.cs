@@ -44,4 +44,7 @@ public class TodoService : ITodoService
 
     public Task<bool> DeleteAsync(int id)
         => _repo.DeleteAsync(id);
+
+    public Task<IReadOnlyList<TodoItem>> GetItemsAsync(string keyword)
+     => _repo.GetByKeywordAsync(keyword);
 }

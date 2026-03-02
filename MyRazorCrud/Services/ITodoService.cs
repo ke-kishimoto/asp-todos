@@ -26,4 +26,5 @@ public interface ITodoService
     Task<TodoItem> CreateAsync(string title);
     Task<bool> UpdateAsync(int id, string title, bool done);
     Task<bool> DeleteAsync(int id);
+    Task<IReadOnlyList<TodoItem>> GetItemsAsync(string keyword);
 }

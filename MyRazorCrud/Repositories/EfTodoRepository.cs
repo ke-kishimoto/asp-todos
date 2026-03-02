@@ -83,4 +83,11 @@ public class EfTodoRepository : ITodoRepository
         await _db.SaveChangesAsync(); // ← ここで実際に SQL を発行
         return true;
     }
+
+    public async Task<IReadOnlyList<TodoItem>> GetByKeywordAsync(string keyword)
+    {
+        return await _db.Todos
+            .Where(x => x.Title.Contains(keyword))
+            .ToListAsync();
+    }
 }
