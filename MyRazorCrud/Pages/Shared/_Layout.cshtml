@@ -4,6 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - MyRazorCrud</title>
+    @* ★ Blazor Server 必須: リソース URL の基準パスを展開先に伝える
+           _framework/blazor.server.js のロードに必要 *@
+    <base href="/" />
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -32,6 +35,11 @@
                         <li class="nav-item">
                             @* ★ MVC への比較用リンク（asp-controller/asp-action を使う） *@
                             <a class="nav-link text-dark" asp-controller="Todos" asp-action="Index">Todos (MVC)</a>
+                        </li>
+                        <li class="nav-item">
+                            @* ★ Blazor Server へのリンク
+                               asp-page で Razor Page のホストページを指定 *@
+                            <a class="nav-link text-dark" asp-page="/BlazorTodos/Index">Todos (Blazor Server)</a>
                         </li>
                     </ul>
                 </div>

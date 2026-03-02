@@ -1,0 +1,192 @@
+@* =========================================================
+   Blazor Server 版 Todo 一覧コンポーネント
+   =========================================================
+   ★ MVC との比較ポイント：
+
+   【MVC / Razor Pages】
+     - HTTP GET  /mvc/todos         → Controller.Index()  → View(items)
+     - HTTP GET  /mvc/todos/search  → Controller.Search() → View(items)
+     - 検索のたびにフルページリクエスト発生 → HTML 全体を再生成
+
+   【Blazor Server】
+     - 初回アクセス時のみ HTTP でページ読み込み
+     - 以降は WebSocket (SignalR) で「回線(Circuit)」を維持
+     - ボタンクリック → C# イベントハンドラ → 差分 DOM 更新
+       （フルページリロードなし）
+     - C# のコードがサーバーで実行 → ブラウザには差分 HTML のみ送信
+
+   【ファイル構成の違い】
+     MVC     : Controller (.cs) + View (.cshtml) = 2ファイル
+     Blazor  : Component (.razor) のみ = 1ファイル
+               (.razor 内に UI テンプレートと @code{} ロジックを同居)
+   ========================================================= *@
+
+@* ★ @inject は DI コンテナから依存を注入する Blazor の仕組み
+       MVC のコンストラクタインジェクション (Controller の ctor) に相当
+       Program.cs に登録済みの ITodoService が自動で差し込まれる *@
+@inject ITodoService TodoService
+
+<h1>Todos <small class="text-muted fs-6">(Blazor Server)</small></h1>
+
+@* =========================================================
+   MVC との比較：検索フォーム
+   ---------------------------------------------------------
+   【MVC】
+     <form asp-action="Search" method="get">
+       <input type="text" name="keyword" />
+       <button type="submit">検索</button>
+     </form>
+     → submit で HTTP GET /mvc/todos/search?keyword=xxx を発行
+     → サーバーで Controller アクションを実行し HTML 全体を返す
+
+   【Blazor Server】
+     <input @bind="keyword" /> と <button @onclick="Search">
+     → @bind  : C# フィールド keyword と input を双方向バインド
+     → @onclick: ボタンクリックで C# メソッド Search() を呼び出す
+     → HTTP リクエストは発生しない（WebSocket 経由で差分更新）
+   ========================================================= *@
+<div class="row mb-3">
+    <div class="col-auto">
+        @* @bind="keyword"         : <input> の value と C# 変数を同期
+           @bind:event="oninput"   : キー入力のたびに即時同期（onChange より速い）
+           MVC の name="keyword" とは異なり、サーバー変数と直接バインドする *@
+        <input class="form-control"
+               @bind="keyword"
+               @bind:event="oninput"
+               placeholder="キーワード検索..."
+               style="min-width:250px" />
+    </div>
+    <div class="col-auto d-flex gap-2 align-items-center">
+        @* @onclick="Search" : C# メソッド Search() を呼ぶ
+                               MVC の <button type="submit"> はフォームを POST/GET するが
+                               Blazor ではサーバーサイドのメソッドを直接呼ぶ *@
+        <button class="btn btn-primary" @onclick="Search">検索</button>
+        <button class="btn btn-outline-secondary" @onclick="Reset">リセット</button>
+    </div>
+</div>
+
+@* =========================================================
+   MVC との比較：条件レンダリング
+   ---------------------------------------------------------
+   【MVC View】
+     @if (Model == null) { ... }    ← サーバー側テンプレート、初回だけ評価
+   【Blazor】
+     @if (items == null) { ... }    ← コンポーネントの状態変化で再レンダリング
+                                        OnInitializedAsync 完了前は null のまま
+   ========================================================= *@
+@if (items is null)
+{
+    <p class="text-muted">読み込み中...</p>
+}
+else if (items.Count == 0)
+{
+    <p class="text-warning">
+        @if (string.IsNullOrWhiteSpace(keyword))
+        {
+            <span>Todo アイテムがありません。</span>
+        }
+        else
+        {
+            <span>「<strong>@keyword</strong>」に一致するアイテムはありません。</span>
+        }
+    </p>
+}
+else
+{
+    @* =========================================================
+       MVC との比較：ループ
+       ---------------------------------------------------------
+       【MVC View】  @foreach (var item in Model) { ... }
+                     Model はコントローラーから渡された ViewData
+       【Blazor】    @foreach (var item in items) { ... }
+                     items はコンポーネント自身の C# フィールド
+                     → コンポーネントが自律的にデータを管理する
+       ========================================================= *@
+    <p class="text-muted small">@items.Count 件表示</p>
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Done</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in items)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Title</td>
+                    <td>
+                        @* ★ Blazor ではチェックボックスを @bind でバインドできる
+                              ここでは表示専用なので disabled にしている *@
+                        <input type="checkbox" checked="@item.Done" disabled />
+                    </td>
+                    <td>@item.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@* =========================================================
+   学習メモ：Blazor Server のライフタイム
+   ---------------------------------------------------------
+   SignalR 接続が切れる（ブラウザを閉じるなど）まで Circuit が維持され、
+   コンポーネントの状態（items, keyword）はメモリに保持される。
+   MVC/Razor Pages はリクエスト終了後に状態を持たない（ステートレス）。
+   ========================================================= *@
+
+@* =========================================================
+   @code{} ブロック：C# ロジック
+   ---------------------------------------------------------
+   MVC : Controller クラスにアクションメソッドとして定義
+   Blazor : @code{} ブロックにコンポーネントのロジックを記述
+            UI テンプレートと同一ファイルに同居できる
+            （分離する場合は .razor.cs に書くことも可能）
+   ========================================================= *@
+@code {
+    // ★ コンポーネントのステート（状態）
+    //    MVC では ViewData/Model として1リクエストごとに生成されるが、
+    //    Blazor では Circuit（WebSocket接続）が生きている間保持される
+    private string keyword = "";
+    private IReadOnlyList<TodoItem>? items;   // null = 初期化前（ローディング中）
+
+    // =========================================================
+    // OnInitializedAsync : コンポーネント初期化時（初回レンダリング前）に実行
+    // ---------------------------------------------------------
+    // MVC との対比：
+    //   MVC         : コントローラーの Index() アクション（HTTP GETで呼ばれる）
+    //   Blazor      : OnInitializedAsync はライフサイクルメソッド
+    //                 最初の1回だけ呼ばれ、その後は状態が保持される
+    // =========================================================
+    protected override async Task OnInitializedAsync()
+    {
+        items = await TodoService.GetAllAsync();
+    }
+
+    // =========================================================
+    // Search : 検索ボタンクリック時のイベントハンドラ
+    // ---------------------------------------------------------
+    // MVC との対比：
+    //   MVC    : HTTP GET /mvc/todos/search → Controller.Search(keyword) が呼ばれる
+    //            ページ全体を再生成して返す（フルリロード）
+    //   Blazor : @onclick で直接 C# メソッドを呼ぶ
+    //            HTTP リクエストなし → 差分 DOM のみ更新
+    //            ユーザーは画面のちらつきを感じない
+    // =========================================================
+    private async Task Search()
+    {
+        items = await TodoService.GetItemsAsync(keyword);
+        // ← StateHasChanged() を明示的に呼ばなくてもよい
+        //   async イベントハンドラでは await 完了後に自動で再レンダリングされる
+    }
+
+    // リセット：全件表示に戻す
+    private async Task Reset()
+    {
+        keyword = "";
+        items = await TodoService.GetAllAsync();
+    }
+}

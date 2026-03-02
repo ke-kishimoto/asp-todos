@@ -38,6 +38,19 @@ builder.Services.AddScoped<ITodoService, TodoService>();
 // ★ 旧実装：InMemoryをそのまま残す（比較・参照用）
 builder.Services.AddSingleton<InMemoryTodoRepository>();
 
+// -----------------------------------------------------------------------
+// ★ Blazor Server 追加
+//
+//   AddServerSideBlazor() : Blazor Server に必要なサービスを DI に登録
+//     - SignalR ベースのリアルタイム通信（回線 = Circuit）を管理
+//     - Razor コンポーネントのレンダリングエンジンを登録
+//
+//   MVC/Razor Pages との違い：
+//     - MVC/Razor Pages : HTTP リクエスト/レスポンスのライフサイクル
+//     - Blazor Server   : WebSocket で "回線" を張り、差分DOM更新で動作
+// -----------------------------------------------------------------------
+builder.Services.AddServerSideBlazor();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -64,5 +77,17 @@ app.MapControllerRoute(
 // ★ Web API追加：[ApiController] の属性ルーティングを有効化
 //   MapControllerRoute は従来ルーティング用のため、APIコントローラーには MapControllers() が必要
 app.MapControllers();
+
+// -----------------------------------------------------------------------
+// ★ Blazor Server 追加
+//
+//   MapBlazorHub() : Blazor 回線（Circuit）を確立する SignalR ハブ
+//                    /_blazor エンドポイントを登録
+//
+//   ※ MapRazorComponents<App>() は .NET 8 の新形式（Blazor Web App）
+//     旧形式（AddServerSideBlazor + MapBlazorHub）は
+//     既存の Razor Pages / MVC アプリへの組み込みに適している
+// -----------------------------------------------------------------------
+app.MapBlazorHub();
 
 app.Run();
