@@ -1,55 +1,51 @@
 using Microsoft.AspNetCore.Mvc;
 using MyRazorCrud.Models;
 using MyRazorCrud.Services;
+using System.Net;
+using System.Reflection;
 
 namespace MyRazorCrud.Controllers;
 
 // -----------------------------------------------------------------------
 // 【Web API版】Todos コントローラー
 //
-// ★ MVC (TodosController) との主な違い：
-//   - [ApiController] 属性を付ける
-//       → バリデーションエラー時に自動で 400 Bad Request を返す
-//       → [FromBody] などのバインディングソース推論が有効になる
-//   - View() を返さず、データ（オブジェクト）をそのまま返す
-//       → ASP.NET Core が自動的に JSON にシリアライズしてレスポンス
-//   - [Route("api/[controller]")] で /api/todos にマップされる
-//       → [controller] はクラス名から "Controller" を除いた "Todos" に解決
+// ★ 変更点：InMemoryTodoRepository → ITodoService に切り替え
+//   かつ 非同期（async/await）に変更
 // -----------------------------------------------------------------------
 [ApiController]
-// ★ [controller] を使うと "TodosApi" に解決されてしまうため、URLを明示的に指定
-// クラス名: TodosApiController → [controller] = "TodosApi" → /api/TodosApi になってしまう
 [Route("api/todos")]
 public class TodosApiController : ControllerBase
 {
-    // ★ MVC/Razor Pages と同様に DI でリポジトリを受け取る
-    private readonly InMemoryTodoRepository _repo;
+    private readonly ITodoService _service;
 
-    public TodosApiController(InMemoryTodoRepository repo)
+    public TodosApiController(ITodoService service)
     {
-        _repo = repo;
+        _service = service;
     }
 
-    // ---------------------------------------------------------------
     // GET /api/todos
-    //
-    // ★ MVC        : return View(items);  → HTMLを返す
-    // ★ Razor Pages: return Page();       → HTMLを返す
-    // ★ Web API    : return Ok(items);    → JSON を返す
-    //
-    // レスポンス例:
-    // [
-    //   { "id": 1, "title": "Learn Razor Pages", "done": false, "createdAt": "..." },
-    //   { "id": 2, "title": "Build List page",   "done": false, "createdAt": "..." }
-    // ]
-    // ---------------------------------------------------------------
     [HttpGet]
-    public ActionResult<IReadOnlyList<TodoItem>> GetAll()
+    public async Task<ActionResult<IReadOnlyList<TodoListResponse>>> GetAll()
     {
-        var items = _repo.GetAll();
+        var items = await _service.GetAllAsync();
+        return Ok(new TodoListResponse { Todos = items.ToList() });
+    }
 
-        // Ok() = HTTP 200 + JSON ボディ
-        // ActionResult<T> により Swagger 等でレスポンス型が自動認識される
-        return Ok(items);
+    // POST /api/todos
+    [HttpPost]
+    public async Task<ActionResult<HttpResponse>> Create(TodoPostRequest request)
+    {        
+        await _service.CreateAsync(request.Title);
+        return Created();
+    }
+
+    public record TodoPostRequest(string Title)
+    {
+
+    }
+
+    public record TodoListResponse
+    {
+        public required List <TodoItem> Todos { get; init; }
     }
 }

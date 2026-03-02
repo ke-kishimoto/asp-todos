@@ -7,19 +7,20 @@ namespace MyRazorCrud.Pages.Todos;
 
 public class DeleteModel : PageModel
 {
-    private readonly InMemoryTodoRepository _repo;
+    private readonly ITodoService _service;
 
-    public DeleteModel(InMemoryTodoRepository repo)
+    public DeleteModel(ITodoService service)
     {
-        _repo = repo;
+        _service = service;
     }
 
     public TodoItem Item { get; private set; } = default!;
 
     // GET /Todos/Delete?id=1
-    public IActionResult OnGet(int id)
+    // ★ 変更点：OnGet → OnGetAsync
+    public async Task<IActionResult> OnGetAsync(int id)
     {
-        var item = _repo.GetById(id);
+        var item = await _service.GetByIdAsync(id);
         if (item is null) return NotFound();
 
         Item = item;
@@ -27,9 +28,10 @@ public class DeleteModel : PageModel
     }
 
     // POST /Todos/Delete?id=1
-    public IActionResult OnPost(int id)
+    // ★ 変更点：OnPost → OnPostAsync
+    public async Task<IActionResult> OnPostAsync(int id)
     {
-        var ok = _repo.Delete(id);
+        var ok = await _service.DeleteAsync(id);
         if (!ok) return NotFound();
 
         return RedirectToPage("/Todos/Index");

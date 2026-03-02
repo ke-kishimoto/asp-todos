@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MyRazorCrud.Data;
+using MyRazorCrud.Repositories;
 using MyRazorCrud.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +16,26 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ★追加：インメモリRepoをDI登録
+// -----------------------------------------------------------------------
+// DI 登録：レイヤー構成
+//
+//   [Controller/Page]
+//        ↓ ITodoService に依存
+//   [TodoService]      ← Scoped：リクエストごとに生成
+//        ↓ ITodoRepository に依存
+//   [EfTodoRepository] ← Scoped：リクエストごとに生成（DbContextと合わせる）
+//        ↓
+//   [AppDbContext]     ← Scoped：AddDbContext が自動登録
+//
+// ★ AddScoped vs AddSingleton vs AddTransient：
+//   - Scoped    : リクエストごとに1インスタンス（DB操作に最適）
+//   - Singleton : アプリ全体で1インスタンス（InMemoryRepository はこれ）
+//   - Transient : 注入のたびに新しいインスタンス
+// -----------------------------------------------------------------------
+builder.Services.AddScoped<ITodoRepository, EfTodoRepository>();
+builder.Services.AddScoped<ITodoService, TodoService>();
+
+// ★ 旧実装：InMemoryをそのまま残す（比較・参照用）
 builder.Services.AddSingleton<InMemoryTodoRepository>();
 
 var app = builder.Build();

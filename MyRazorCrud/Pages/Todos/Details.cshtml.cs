@@ -7,23 +7,21 @@ namespace MyRazorCrud.Pages.Todos;
 
 public class DetailsModel : PageModel
 {
-    private readonly InMemoryTodoRepository _repo;
+    private readonly ITodoService _service;
 
     public TodoItem Item { get; private set; } = default!;
 
-    public DetailsModel(InMemoryTodoRepository repo)
+    public DetailsModel(ITodoService service)
     {
-        _repo = repo;
+        _service = service;
     }
 
     // GET /Todos/Details?id=123
-    public IActionResult OnGet(int id)
+    // ★ 変更点：OnGet → OnGetAsync
+    public async Task<IActionResult> OnGetAsync(int id)
     {
-        var item = _repo.GetById(id);
-        if (item is null)
-        {
-            return NotFound();
-        }
+        var item = await _service.GetByIdAsync(id);
+        if (item is null) return NotFound();
 
         Item = item;
         return Page();

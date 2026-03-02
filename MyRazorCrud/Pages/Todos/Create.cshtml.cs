@@ -6,14 +6,13 @@ namespace MyRazorCrud.Pages.Todos;
 
 public class CreateModel : PageModel
 {
-    private readonly InMemoryTodoRepository _repo;
+    private readonly ITodoService _service;
 
-    public CreateModel(InMemoryTodoRepository repo)
+    public CreateModel(ITodoService service)
     {
-        _repo = repo;
+        _service = service;
     }
 
-    // フォーム入力を受け取る入れ物
     [BindProperty]
     public string Title { get; set; } = "";
 
@@ -23,16 +22,17 @@ public class CreateModel : PageModel
     }
 
     // POST /Todos/Create
-    public IActionResult OnPost()
+    // ★ 変更点：OnPost → OnPostAsync
+    public async Task<IActionResult> OnPostAsync()
     {
-        // 超簡易バリデーション（まずはこれでOK）
         if (string.IsNullOrWhiteSpace(Title))
         {
             ModelState.AddModelError(nameof(Title), "タイトルは必須です");
-            return Page(); // 同じ画面を再表示
+            return Page();
         }
 
-        _repo.Add(Title.Trim());
-        return RedirectToPage("/Todos/Index"); // 登録後は一覧へ
+        // ★ 変更点：_repo.Add → await _service.CreateAsync
+        await _service.CreateAsync(Title);
+        return RedirectToPage("/Todos/Index");
     }
 }

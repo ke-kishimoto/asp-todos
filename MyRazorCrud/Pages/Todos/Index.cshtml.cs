@@ -6,17 +6,20 @@ namespace MyRazorCrud.Pages.Todos;
 
 public class IndexModel : PageModel
 {
-    private readonly InMemoryTodoRepository _repo;
+    // ★ 変更点：InMemoryTodoRepository → ITodoService に切り替え
+    //   上位層（Page）はインターフェースにのみ依存する
+    private readonly ITodoService _service;
 
     public IReadOnlyList<TodoItem> Items { get; private set; } = Array.Empty<TodoItem>();
 
-    public IndexModel(InMemoryTodoRepository repo)
+    public IndexModel(ITodoService service)
     {
-        _repo = repo;
+        _service = service;
     }
 
-    public void OnGet()
+    // ★ 変更点：OnGet → OnGetAsync（DB操作は非同期で行う）
+    public async Task OnGetAsync()
     {
-        Items = _repo.GetAll();
+        Items = await _service.GetAllAsync();
     }
 }

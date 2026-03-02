@@ -6,14 +6,13 @@ namespace MyRazorCrud.Pages.Todos;
 
 public class EditModel : PageModel
 {
-    private readonly InMemoryTodoRepository _repo;
+    private readonly ITodoService _service;
 
-    public EditModel(InMemoryTodoRepository repo)
+    public EditModel(ITodoService service)
     {
-        _repo = repo;
+        _service = service;
     }
 
-    // フォーム用（入力をまとめる）
     public class InputModel
     {
         public string Title { get; set; } = "";
@@ -24,9 +23,10 @@ public class EditModel : PageModel
     public InputModel Input { get; set; } = new();
 
     // GET /Todos/Edit?id=1
-    public IActionResult OnGet(int id)
+    // ★ 変更点：OnGet → OnGetAsync
+    public async Task<IActionResult> OnGetAsync(int id)
     {
-        var item = _repo.GetById(id);
+        var item = await _service.GetByIdAsync(id);
         if (item is null) return NotFound();
 
         Input = new InputModel
@@ -39,7 +39,8 @@ public class EditModel : PageModel
     }
 
     // POST /Todos/Edit?id=1
-    public IActionResult OnPost(int id)
+    // ★ 変更点：OnPost → OnPostAsync
+    public async Task<IActionResult> OnPostAsync(int id)
     {
         if (string.IsNullOrWhiteSpace(Input.Title))
         {
@@ -47,7 +48,7 @@ public class EditModel : PageModel
             return Page();
         }
 
-        var ok = _repo.Update(id, Input.Title.Trim(), Input.Done);
+        var ok = await _service.UpdateAsync(id, Input.Title, Input.Done);
         if (!ok) return NotFound();
 
         return RedirectToPage("/Todos/Details", new { id });
