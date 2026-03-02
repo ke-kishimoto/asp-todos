@@ -1,0 +1,89 @@
+@* =========================================================
+   TodoDeleteModal : 削除確認モーダルコンポーネント
+   =========================================================
+
+   ★ JS Interop 不使用の Bootstrap モーダル実現方法
+   ---------------------------------------------------------
+   通常 Bootstrap のモーダルは JS で制御しますが、
+   Blazor では @if で DOM 自体を出し入れし、
+   CSS クラスで「表示状態」を模倣する方法が最も簡単です。
+
+   【仕組み】
+     IsVisible=true  → モーダル HTML をレンダリング
+                        Bootstrap の show クラス + display:block を付与
+                        backdrop div で背景をオーバーレイ
+     IsVisible=false → @if により HTML ごと DOM から除去
+
+   ★ コンポーネント設計の考え方
+   ---------------------------------------------------------
+   削除確認のような「Yes/No を問う UI」は汎用コンポーネント化しやすい。
+   [Parameter] で削除対象の情報と OK/Cancel のコールバックを受け取れば
+   どの画面でも再利用できる。
+   ========================================================= *@
+
+@if (IsVisible && DeletingItem is not null)
+{
+    @* ── モーダルバックドロップ ── *@
+    <div class="modal-backdrop fade show"></div>
+
+    @* ── モーダル本体 ── *@
+    @* Bootstrap のモーダルを手動で show 状態にする *@
+    <div class="modal fade show d-block" tabindex="-1" role="dialog"
+         aria-modal="true" aria-labelledby="deleteModalLabel">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                @* ── ヘッダー *@
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="deleteModalLabel">
+                        削除の確認
+                    </h5>
+                    <button type="button" class="btn-close"
+                            @onclick="Cancel" aria-label="閉じる"></button>
+                </div>
+
+                @* ── ボディ *@
+                <div class="modal-body">
+                    <p class="mb-1">以下のアイテムを削除しますか？</p>
+                    <div class="alert alert-warning py-2 mb-0">
+                        <strong>ID:</strong> @DeletingItem.Id　
+                        <strong>タイトル:</strong> @DeletingItem.Title
+                    </div>
+                    <p class="text-muted small mt-2 mb-0">この操作は元に戻せません。</p>
+                </div>
+
+                @* ── フッター *@
+                <div class="modal-footer">
+                    @* ★ ボタンクリック → C# のコールバックを呼ぶだけ
+                           MVC: DELETE フォームを submit して HTTP POST
+                           Blazor: イベントハンドラで直接 Service を呼ぶ *@
+                    <button type="button" class="btn btn-outline-secondary"
+                            @onclick="Cancel">キャンセル</button>
+                    <button type="button" class="btn btn-danger"
+                            @onclick="Confirm">削除する</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    // =========================================================
+    // パラメーター
+    // =========================================================
+
+    [Parameter] public bool IsVisible { get; set; }
+
+    /// <summary>削除対象アイテム</summary>
+    [Parameter] public TodoItem? DeletingItem { get; set; }
+
+    /// <summary>「削除する」ボタン押下時に親へ通知</summary>
+    [Parameter] public EventCallback OnConfirm { get; set; }
+
+    /// <summary>「キャンセル」押下時に親へ通知</summary>
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private async Task Confirm() => await OnConfirm.InvokeAsync();
+    private async Task Cancel()  => await OnCancel.InvokeAsync();
+}

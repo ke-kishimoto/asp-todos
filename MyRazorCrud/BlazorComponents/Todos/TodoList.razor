@@ -1,79 +1,85 @@
 @* =========================================================
-   Blazor Server 版 Todo 一覧コンポーネント
+   Blazor Server 版 Todo 一覧 + CRUD コンポーネント（親）
    =========================================================
-   ★ MVC との比較ポイント：
 
-   【MVC / Razor Pages】
-     - HTTP GET  /mvc/todos         → Controller.Index()  → View(items)
-     - HTTP GET  /mvc/todos/search  → Controller.Search() → View(items)
-     - 検索のたびにフルページリクエスト発生 → HTML 全体を再生成
+   ★ このコンポーネントの設計方針
+   ---------------------------------------------------------
+   「コンポーネントツリー」構成：
 
-   【Blazor Server】
-     - 初回アクセス時のみ HTTP でページ読み込み
-     - 以降は WebSocket (SignalR) で「回線(Circuit)」を維持
-     - ボタンクリック → C# イベントハンドラ → 差分 DOM 更新
-       （フルページリロードなし）
-     - C# のコードがサーバーで実行 → ブラウザには差分 HTML のみ送信
+     TodoList（この画面：状態管理・一覧表示・CRUD 起点）
+       ├── TodoFormPanel（サイドパネル：新規作成 / 編集フォーム）
+       └── TodoDeleteModal（モーダル：削除確認）
 
-   【ファイル構成の違い】
-     MVC     : Controller (.cs) + View (.cshtml) = 2ファイル
-     Blazor  : Component (.razor) のみ = 1ファイル
-               (.razor 内に UI テンプレートと @code{} ロジックを同居)
+   MVC との構造比較：
+
+     【MVC】
+       Routes:
+         GET  /mvc/todos            → Index() → Index.cshtml
+         GET  /mvc/todos/search     → Search() → Index.cshtml
+         GET  /mvc/todos/create     → Create() → Create.cshtml（別ページ）
+         POST /mvc/todos/create     → Create() → RedirectToAction
+         GET  /mvc/todos/edit/{id}  → Edit() → Edit.cshtml（別ページ）
+         POST /mvc/todos/edit/{id}  → Edit() → RedirectToAction
+         GET  /mvc/todos/delete/{id}→ Delete() → Delete.cshtml（別ページ）
+         POST /mvc/todos/delete/{id}→ Delete() → RedirectToAction
+
+     【Blazor Server】
+       URL: /blazor/todos（1つだけ）
+       操作ごとにパネル/モーダルが開くだけで URL は変わらない
+       全 CRUD が 1 つの画面内で完結する SPA 的 UI
+
+   ★ 「状態（State）の中央管理」がポイント
+   ---------------------------------------------------------
+   このコンポーネントが「真実の源（Single Source of Truth）」として
+   画面に表示するデータ(items)とUI状態(showPanel等)を保持する。
+   子コンポーネントは EventCallback で親に変更を通知し、
+   親がデータを再取得 → 再レンダリングの流れ。
    ========================================================= *@
 
-@* ★ @inject は DI コンテナから依存を注入する Blazor の仕組み
-       MVC のコンストラクタインジェクション (Controller の ctor) に相当
-       Program.cs に登録済みの ITodoService が自動で差し込まれる *@
 @inject ITodoService TodoService
 
 <h1>Todos <small class="text-muted fs-6">(Blazor Server)</small></h1>
 
-@* =========================================================
-   MVC との比較：検索フォーム
-   ---------------------------------------------------------
-   【MVC】
-     <form asp-action="Search" method="get">
-       <input type="text" name="keyword" />
-       <button type="submit">検索</button>
-     </form>
-     → submit で HTTP GET /mvc/todos/search?keyword=xxx を発行
-     → サーバーで Controller アクションを実行し HTML 全体を返す
+@* ── ツールバー ─────────────────────────────────────── *@
+<div class="row mb-3 align-items-center g-2">
 
-   【Blazor Server】
-     <input @bind="keyword" /> と <button @onclick="Search">
-     → @bind  : C# フィールド keyword と input を双方向バインド
-     → @onclick: ボタンクリックで C# メソッド Search() を呼び出す
-     → HTTP リクエストは発生しない（WebSocket 経由で差分更新）
-   ========================================================= *@
-<div class="row mb-3">
+    @* 検索フォーム *@
     <div class="col-auto">
-        @* @bind="keyword"         : <input> の value と C# 変数を同期
-           @bind:event="oninput"   : キー入力のたびに即時同期（onChange より速い）
-           MVC の name="keyword" とは異なり、サーバー変数と直接バインドする *@
         <input class="form-control"
                @bind="keyword"
                @bind:event="oninput"
                placeholder="キーワード検索..."
-               style="min-width:250px" />
+               style="min-width:220px" />
     </div>
-    <div class="col-auto d-flex gap-2 align-items-center">
-        @* @onclick="Search" : C# メソッド Search() を呼ぶ
-                               MVC の <button type="submit"> はフォームを POST/GET するが
-                               Blazor ではサーバーサイドのメソッドを直接呼ぶ *@
+    <div class="col-auto d-flex gap-2">
         <button class="btn btn-primary" @onclick="Search">検索</button>
         <button class="btn btn-outline-secondary" @onclick="Reset">リセット</button>
     </div>
+
+    <div class="col-auto ms-auto">
+        @* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+           ★「新規作成」ボタン：MVC との最大の違い
+           MVC    : <a asp-action="Create"> でページ遷移
+           Blazor : @onclick で C# メソッドを呼ぶだけ
+                    → URL 変化なし、パネルがスライドインする
+           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ *@
+        <button class="btn btn-success" @onclick="OpenCreate">
+            ＋ 新規作成
+        </button>
+    </div>
 </div>
 
-@* =========================================================
-   MVC との比較：条件レンダリング
-   ---------------------------------------------------------
-   【MVC View】
-     @if (Model == null) { ... }    ← サーバー側テンプレート、初回だけ評価
-   【Blazor】
-     @if (items == null) { ... }    ← コンポーネントの状態変化で再レンダリング
-                                        OnInitializedAsync 完了前は null のまま
-   ========================================================= *@
+@* ── 成功メッセージ ─────────────────────────────────── *@
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success alert-dismissible py-2 small" role="alert">
+        @successMessage
+        <button type="button" class="btn-close py-2"
+                @onclick="() => successMessage = string.Empty"></button>
+    </div>
+}
+
+@* ── 一覧テーブル ─────────────────────────────────── *@
 @if (items is null)
 {
     <p class="text-muted">読み込み中...</p>
@@ -81,112 +87,222 @@
 else if (items.Count == 0)
 {
     <p class="text-warning">
-        @if (string.IsNullOrWhiteSpace(keyword))
-        {
-            <span>Todo アイテムがありません。</span>
-        }
-        else
-        {
-            <span>「<strong>@keyword</strong>」に一致するアイテムはありません。</span>
-        }
+        @(string.IsNullOrWhiteSpace(keyword)
+            ? "Todo アイテムがありません。"
+            : $"「{keyword}」に一致するアイテムはありません。")
     </p>
 }
 else
 {
-    @* =========================================================
-       MVC との比較：ループ
-       ---------------------------------------------------------
-       【MVC View】  @foreach (var item in Model) { ... }
-                     Model はコントローラーから渡された ViewData
-       【Blazor】    @foreach (var item in items) { ... }
-                     items はコンポーネント自身の C# フィールド
-                     → コンポーネントが自律的にデータを管理する
-       ========================================================= *@
     <p class="text-muted small">@items.Count 件表示</p>
-    <table class="table table-hover">
+    <table class="table table-hover align-middle">
         <thead class="table-light">
             <tr>
-                <th>ID</th>
+                <th style="width:60px">ID</th>
                 <th>Title</th>
-                <th>Done</th>
-                <th>Created</th>
+                <th style="width:80px" class="text-center">Done</th>
+                <th style="width:160px">Created</th>
+                <th style="width:140px" class="text-center">操作</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var item in items)
             {
-                <tr>
+                var captured = item;
+                <tr class="@(item.Done ? "table-secondary text-muted" : "")">
                     <td>@item.Id</td>
-                    <td>@item.Title</td>
                     <td>
-                        @* ★ Blazor ではチェックボックスを @bind でバインドできる
-                              ここでは表示専用なので disabled にしている *@
-                        <input type="checkbox" checked="@item.Done" disabled />
+                        @if (item.Done) { <s>@item.Title</s> }
+                        else            { @item.Title }
                     </td>
+
+                    @* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                       ★ インライン Done トグル（Blazor の強み）
+                       MVC    : 別途フォーム送信や JavaScript が必要
+                       Blazor : @onchange に async メソッドを渡すだけ
+                                HTTP リクエストなし、一覧はその場で更新
+                       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ *@
+                    <td class="text-center">
+                        <input type="checkbox"
+                               class="form-check-input fs-5"
+                               style="cursor:pointer"
+                               checked="@item.Done"
+                               @onchange="async _ => await ToggleDone(captured)"
+                               title="クリックで完了/未完了を切替" />
+                    </td>
+
                     <td>@item.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</td>
+
+                    <td class="text-center">
+                        @* 編集：MVC は asp-action="Edit" でページ遷移
+                                 Blazor は @onclick でパネル表示 *@
+                        <button class="btn btn-sm btn-outline-primary me-1"
+                                @onclick="() => OpenEdit(captured)">編集</button>
+
+                        @* 削除：MVC は asp-action="Delete" でページ遷移
+                                 Blazor は @onclick でモーダル表示 *@
+                        <button class="btn btn-sm btn-outline-danger"
+                                @onclick="() => OpenDeleteConfirm(captured)">削除</button>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 }
 
-@* =========================================================
-   学習メモ：Blazor Server のライフタイム
+@* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ★ 子コンポーネントの埋め込み
    ---------------------------------------------------------
-   SignalR 接続が切れる（ブラウザを閉じるなど）まで Circuit が維持され、
-   コンポーネントの状態（items, keyword）はメモリに保持される。
-   MVC/Razor Pages はリクエスト終了後に状態を持たない（ステートレス）。
-   ========================================================= *@
+   MVC では Create.cshtml / Edit.cshtml / Delete.cshtml が別ファイルだったが
+   Blazor では <TodoFormPanel> / <TodoDeleteModal> を同一ページに置き、
+   [Parameter] で表示/非表示を切り替えるだけ。
 
-@* =========================================================
-   @code{} ブロック：C# ロジック
-   ---------------------------------------------------------
-   MVC : Controller クラスにアクションメソッドとして定義
-   Blazor : @code{} ブロックにコンポーネントのロジックを記述
-            UI テンプレートと同一ファイルに同居できる
-            （分離する場合は .razor.cs に書くことも可能）
-   ========================================================= *@
+   [Parameter]    → 親から子へのデータ渡し  (IsVisible="showPanel" など)
+   EventCallback  → 子から親へのイベント通知 (OnSave="HandleSave" など)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ *@
+
+@* ■ サイドパネル（新規作成 / 編集） *@
+<TodoFormPanel IsVisible="showPanel"
+               EditItem="editingItem"
+               OnSave="HandleSave"
+               OnCancel="HandleCancel" />
+
+@* ■ 削除確認モーダル *@
+<TodoDeleteModal IsVisible="showDeleteModal"
+                 DeletingItem="deletingItem"
+                 OnConfirm="HandleDeleteConfirm"
+                 OnCancel="HandleDeleteCancel" />
+
+
 @code {
-    // ★ コンポーネントのステート（状態）
-    //    MVC では ViewData/Model として1リクエストごとに生成されるが、
-    //    Blazor では Circuit（WebSocket接続）が生きている間保持される
-    private string keyword = "";
-    private IReadOnlyList<TodoItem>? items;   // null = 初期化前（ローディング中）
+    // =========================================================
+    // ■ 画面の「状態（State）」
+    // =========================================================
+    // ★ MVC との根本的な違い：
+    //   MVC     : HTTP リクエストが終わると状態は全部消える（ステートレス）
+    //             毎回 DB からデータを取得してモデルを作り直す
+    //   Blazor  : WebSocket 接続（Circuit）が生きている間、
+    //             これらのフィールドはメモリに保持され続ける
+
+    private string keyword        = "";
+    private string successMessage = "";
+
+    // ── 一覧データ ──
+    private IReadOnlyList<TodoItem>? items;     // null = ローディング中
+
+    // ── サイドパネル（新規作成/編集）の状態 ──
+    private bool      showPanel   = false;
+    private TodoItem? editingItem = null;       // null = 新規作成モード
+
+    // ── 削除確認モーダルの状態 ──
+    private bool      showDeleteModal = false;
+    private TodoItem? deletingItem    = null;
 
     // =========================================================
-    // OnInitializedAsync : コンポーネント初期化時（初回レンダリング前）に実行
-    // ---------------------------------------------------------
-    // MVC との対比：
-    //   MVC         : コントローラーの Index() アクション（HTTP GETで呼ばれる）
-    //   Blazor      : OnInitializedAsync はライフサイクルメソッド
-    //                 最初の1回だけ呼ばれ、その後は状態が保持される
+    // ■ ライフサイクル
     // =========================================================
     protected override async Task OnInitializedAsync()
     {
-        items = await TodoService.GetAllAsync();
+        await LoadItems();
     }
 
     // =========================================================
-    // Search : 検索ボタンクリック時のイベントハンドラ
-    // ---------------------------------------------------------
-    // MVC との対比：
-    //   MVC    : HTTP GET /mvc/todos/search → Controller.Search(keyword) が呼ばれる
-    //            ページ全体を再生成して返す（フルリロード）
-    //   Blazor : @onclick で直接 C# メソッドを呼ぶ
-    //            HTTP リクエストなし → 差分 DOM のみ更新
-    //            ユーザーは画面のちらつきを感じない
+    // ■ 一覧取得
     // =========================================================
-    private async Task Search()
+    private async Task LoadItems()
     {
-        items = await TodoService.GetItemsAsync(keyword);
-        // ← StateHasChanged() を明示的に呼ばなくてもよい
-        //   async イベントハンドラでは await 完了後に自動で再レンダリングされる
+        items = string.IsNullOrWhiteSpace(keyword)
+            ? await TodoService.GetAllAsync()
+            : await TodoService.GetItemsAsync(keyword);
     }
 
-    // リセット：全件表示に戻す
+    // =========================================================
+    // ■ 検索 / リセット
+    // =========================================================
+    private async Task Search() => await LoadItems();
+
     private async Task Reset()
     {
         keyword = "";
-        items = await TodoService.GetAllAsync();
+        await LoadItems();
+    }
+
+    // =========================================================
+    // ■ サイドパネルを開く（新規作成 / 編集）
+    // =========================================================
+    private void OpenCreate()
+    {
+        editingItem = null;   // null = 新規作成モード
+        showPanel   = true;
+    }
+
+    private void OpenEdit(TodoItem item)
+    {
+        editingItem = item;   // 編集対象をセット
+        showPanel   = true;
+    }
+
+    /// <summary>
+    /// パネルの「保存」コールバック
+    /// 子コンポーネント (TodoFormPanel) で保存完了後に呼ばれる
+    /// ★ EventCallback 受信後に DB から再取得して一覧を最新化
+    ///    MVC の RedirectToAction（リダイレクトで再取得）に相当するが
+    ///    HTTP リクエストは発生せず差分 DOM 更新のみ
+    /// </summary>
+    private async Task HandleSave()
+    {
+        showPanel   = false;
+        editingItem = null;
+        await LoadItems();
+        successMessage = "保存しました！";
+    }
+
+    private void HandleCancel()
+    {
+        showPanel   = false;
+        editingItem = null;
+    }
+
+    // =========================================================
+    // ■ インライン Done トグル
+    // =========================================================
+    /// <summary>
+    /// チェックボックスのクリックで Done を反転して即時保存
+    /// MVC では別途フォーム送信や JS が必要だったが
+    /// Blazor では @onchange に async メソッドを渡すだけ
+    /// </summary>
+    private async Task ToggleDone(TodoItem item)
+    {
+        await TodoService.UpdateAsync(item.Id, item.Title, !item.Done);
+        await LoadItems();
+        successMessage = $"「{item.Title}」の完了状態を更新しました";
+    }
+
+    // =========================================================
+    // ■ 削除
+    // =========================================================
+    private void OpenDeleteConfirm(TodoItem item)
+    {
+        deletingItem    = item;
+        showDeleteModal = true;
+    }
+
+    private async Task HandleDeleteConfirm()
+    {
+        if (deletingItem is null) return;
+
+        var title = deletingItem.Title;
+        await TodoService.DeleteAsync(deletingItem.Id);
+
+        showDeleteModal = false;
+        deletingItem    = null;
+        await LoadItems();
+        successMessage = $"「{title}」を削除しました";
+    }
+
+    private void HandleDeleteCancel()
+    {
+        showDeleteModal = false;
+        deletingItem    = null;
     }
 }

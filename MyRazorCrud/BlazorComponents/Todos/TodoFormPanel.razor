@@ -1,0 +1,241 @@
+@* =========================================================
+   TodoFormPanel : 新規作成 / 編集 用サイドパネルコンポーネント
+   =========================================================
+
+   ★ Blazor の「コンポーネント分割」学習ポイント
+   ---------------------------------------------------------
+   MVC では「フォーム = 独立したページ（URL）」でしたが
+   Blazor では「フォーム = コンポーネント」として切り出し、
+   親 (TodoList) と子 (このパネル) を組み合わせることで
+   ページ遷移なしの SPA 的 UI を実現できます。
+
+   【MVC のフォーム】
+     GET  /mvc/todos/create  → Create.cshtml を返す（ページ遷移）
+     POST /mvc/todos/create  → 保存後 RedirectToAction（ページ遷移）
+
+   【Blazor のフォーム】
+     <button @onclick="OpenPanel">  → IsVisible=true → パネルがスライドイン
+     <EditForm OnValidSubmit="..."> → 保存後 OnSave コールバック → 一覧を更新
+     ページ遷移が一切発生しない
+
+   ★ コンポーネント間の通信：Parameter と EventCallback
+   ---------------------------------------------------------
+   [Parameter]          : 親 → 子へのデータ渡し（props に相当）
+   EventCallback<T>     : 子 → 親へのイベント通知
+                          await OnSave.InvokeAsync(item) で呼び出す
+
+   ★ EditForm の仕組み（MVC の <form asp-action="..."> との比較）
+   ---------------------------------------------------------
+   MVC       : <form> が HTTP POST を発行 → Controller アクションへ
+   Blazor    : <EditForm Model="...">
+                 OnValidSubmit : バリデーション通過時に C# メソッドを呼ぶ
+                 サーバーへの HTTP リクエストは発生しない
+   ========================================================= *@
+
+@* IsVisible が true のときだけパネル全体をレンダリング *@
+@if (IsVisible)
+{
+    @* ── オーバーレイ（パネル外クリックで閉じる） ─── *@
+    <div class="panel-overlay" @onclick="Cancel"></div>
+
+    @* ── サイドパネル本体 ─────────────────────────── *@
+    <div class="side-panel">
+        @* ■ ヘッダー *@
+        <div class="side-panel-header">
+            @* ★ EditItem が null なら「新規作成」、あれば「編集」
+                   MVC では別々のアクション (Create / Edit) だったが
+                   Blazor は同一コンポーネントで分岐できる *@
+            <h5 class="mb-0">@(EditItem is null ? "新規作成" : "編集")</h5>
+            <button type="button" class="btn-close" @onclick="Cancel" aria-label="閉じる"></button>
+        </div>
+
+        @* ■ フォーム本体 *@
+        <div class="side-panel-body">
+            @* =========================================================
+               EditForm：Blazor のフォームコンポーネント
+               ---------------------------------------------------------
+               Model           : バリデーション対象のオブジェクト
+               OnValidSubmit   : [Required] などのバリデーション通過後に実行
+               OnInvalidSubmit : バリデーション失敗時（ここでは省略）
+
+               ★ DataAnnotationsValidator を入れることで
+                  [Required] などの属性によるバリデーションが有効になる
+               ★ ValidationMessage でエラーをインライン表示
+               ========================================================= *@
+            <EditForm Model="formModel" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+
+                @* ─── タイトル ─── *@
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">タイトル</label>
+                    @* InputText : <input> の Blazor ラッパー
+                                  @bind-Value で formModel.Title と双方向バインド
+                                  MVC の <input asp-for="Title"> に相当 *@
+                    <InputText class="form-control" @bind-Value="formModel.Title"
+                               placeholder="タイトルを入力..." />
+                    @* ValidationMessage : [Required] エラーをここに表示 *@
+                    <ValidationMessage For="() => formModel.Title" class="text-danger small mt-1" />
+                </div>
+
+                @* ─── 完了フラグ（編集時のみ表示） ─── *@
+                @if (EditItem is not null)
+                {
+                    <div class="mb-4 form-check">
+                        @* InputCheckbox : <input type="checkbox"> の Blazor ラッパー *@
+                        <InputCheckbox class="form-check-input" id="doneCheck"
+                                       @bind-Value="formModel.Done" />
+                        <label class="form-check-label" for="doneCheck">完了</label>
+                    </div>
+                }
+
+                @* ─── ボタン ─── *@
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        @(EditItem is null ? "作成" : "更新")
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary"
+                            @onclick="Cancel">キャンセル</button>
+                </div>
+
+                @* エラーメッセージ表示 *@
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger mt-3 py-2 small">@errorMessage</div>
+                }
+            </EditForm>
+        </div>
+
+        @* ■ フッター：比較情報 *@
+        <div class="side-panel-footer text-muted small">
+            @if (EditItem is null)
+            {
+                <span>MVC 対応: <code>GET /mvc/todos/create</code> + <code>POST /mvc/todos/create</code></span>
+            }
+            else
+            {
+                <span>MVC 対応: <code>GET /mvc/todos/edit/@EditItem.Id</code> + <code>POST</code></span>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    // =========================================================
+    // パラメーター（親コンポーネント TodoList.razor から受け取る）
+    // =========================================================
+
+    /// <summary>パネルの表示/非表示</summary>
+    [Parameter] public bool IsVisible { get; set; }
+
+    /// <summary>
+    /// 編集対象アイテム。null なら「新規作成」モード
+    /// MVC では Create/Edit の 2 つのアクションだったが、
+    /// Blazor ではこの 1 つのパラメーターで分岐できる
+    /// </summary>
+    [Parameter] public TodoItem? EditItem { get; set; }
+
+    /// <summary>保存完了時に親へ通知するイベント</summary>
+    [Parameter] public EventCallback OnSave { get; set; }
+
+    /// <summary>キャンセル時に親へ通知するイベント</summary>
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    // =========================================================
+    // 注入されるサービス
+    // =========================================================
+    /// <summary>
+    /// ★ @inject でサービスを注入
+    ///    MVC のコンストラクタインジェクションに相当
+    ///    このコンポーネント内で直接 DB 操作できる
+    ///    （親から渡す必要がない = コンポーネントの自律性）
+    /// </summary>
+    [Inject] private ITodoService TodoService { get; set; } = default!;
+
+    // =========================================================
+    // フォームバインド用内部モデル
+    // =========================================================
+    /// <summary>
+    /// ★ EditForm には専用のモデルクラスを用意するのがベストプラクティス
+    ///    TodoItem をそのまま使わない理由：
+    ///      - ドメインモデルにバリデーション属性を混在させたくない
+    ///      - 送信前の「編集中の状態」を安全に保持できる
+    /// </summary>
+    private TodoFormModel formModel = new();
+    private string errorMessage = "";
+
+    // =========================================================
+    // OnParametersSet : パラメーターが変化するたびに呼ばれる
+    // =========================================================
+    // ★ ライフサイクルメソッドの比較：
+    //   MVC      : アクションメソッドが毎リクエスト呼ばれる
+    //   Blazor   : OnInitializedAsync → 初回1回
+    //              OnParametersSet   → パラメーター変更のたびに呼ばれる
+    //              StateHasChanged   → 手動で再レンダリング要求
+    protected override void OnParametersSet()
+    {
+        errorMessage = "";
+        if (EditItem is not null)
+        {
+            // 編集モード：既存データをフォームに反映
+            formModel.Title = EditItem.Title;
+            formModel.Done  = EditItem.Done;
+        }
+        else
+        {
+            // 新規作成モード：フォームをリセット
+            formModel = new();
+        }
+    }
+
+    // =========================================================
+    // HandleSubmit : EditForm の OnValidSubmit から呼ばれる
+    // =========================================================
+    private async Task HandleSubmit()
+    {
+        errorMessage = "";
+        try
+        {
+            if (EditItem is null)
+            {
+                // ── 新規作成 ──
+                // MVC: Controller.Create(title) に相当
+                await TodoService.CreateAsync(formModel.Title);
+            }
+            else
+            {
+                // ── 更新 ──
+                // MVC: Controller.Edit(id, input) に相当
+                await TodoService.UpdateAsync(EditItem.Id, formModel.Title, formModel.Done);
+            }
+
+            // 保存成功 → 親 (TodoList) に通知
+            // ★ EventCallback.InvokeAsync() で親のメソッドを呼ぶ
+            //    MVC の RedirectToAction に相当（ページ遷移なし版）
+            await OnSave.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"保存に失敗しました: {ex.Message}";
+        }
+    }
+
+    private async Task Cancel() => await OnCancel.InvokeAsync();
+
+    // =========================================================
+    // 内部フォームモデルクラス
+    // =========================================================
+    private class TodoFormModel
+    {
+        /// <summary>
+        /// ★ [Required] : ASP.NET の DataAnnotations バリデーション属性
+        ///    MVC でも同じ属性が使えるが、
+        ///    Blazor では EditForm + DataAnnotationsValidator で
+        ///    クライアント側（サーバー）でリアルタイムにバリデーションされる
+        /// </summary>
+        [Required(ErrorMessage = "タイトルは必須です")]
+        [StringLength(200, ErrorMessage = "200文字以内で入力してください")]
+        public string Title { get; set; } = "";
+
+        public bool Done { get; set; }
+    }
+}
