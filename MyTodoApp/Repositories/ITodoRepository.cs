@@ -19,10 +19,10 @@ namespace MyTodoApp.Repositories;
 // -----------------------------------------------------------------------
 public interface ITodoRepository
 {
-    Task<IReadOnlyList<TodoItem>> GetAllAsync();
-    Task<TodoItem?> GetByIdAsync(int id);
-    Task<TodoItem> AddAsync(string title);
+    Task<IReadOnlyList<TodoItemEntity>> GetAllAsync();
+    Task<TodoItemEntity?> GetByIdAsync(int id);
+    Task<TodoItemEntity> AddAsync(string title);
     Task<bool> UpdateAsync(int id, string title, bool done);
     Task<bool> DeleteAsync(int id);
-    Task<IReadOnlyList<TodoItem>> GetByKeywordAsync(string keyword);
+    Task<IReadOnlyList<TodoItemEntity>> GetByKeywordAsync(string keyword);
 }

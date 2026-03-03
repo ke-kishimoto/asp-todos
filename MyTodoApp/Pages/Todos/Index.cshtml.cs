@@ -10,7 +10,7 @@ public class IndexModel : PageModel
     //   上位層（Page）はインターフェースにのみ依存する
     private readonly ITodoService _service;
 
-    public IReadOnlyList<TodoItem> Items { get; private set; } = Array.Empty<TodoItem>();
+    public IReadOnlyList<TodoItemEntity> Items { get; private set; } = Array.Empty<TodoItemEntity>();
 
     public IndexModel(ITodoService service)
     {
@@ -20,6 +20,6 @@ public class IndexModel : PageModel
     // ★ 変更点：OnGet → OnGetAsync（DB操作は非同期で行う）
     public async Task OnGetAsync()
     {
-        Items = await _service.GetAllAsync();
+        Items = (await _service.GetAllAsync()).Items.Select(i => new TodoItemEntity(i)).ToList();
     }
 }

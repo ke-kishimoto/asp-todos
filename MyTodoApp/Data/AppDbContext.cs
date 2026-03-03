@@ -35,7 +35,7 @@ public class AppDbContext : DbContext
     //   _db.Todos.Add(new TodoItem { Title = "foo" });      // INSERT 予約
     //   await _db.SaveChangesAsync();                       // 実際にDBへ送信
     // ---------------------------------------------------------------
-    public DbSet<TodoItem> Todos { get; set; }
+    public DbSet<TodoItemEntity> Todos { get; set; }
 
     // ---------------------------------------------------------------
     // OnModelCreating : テーブル・カラムの詳細設定（Fluent API）
@@ -47,7 +47,7 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<TodoItem>(entity =>
+        modelBuilder.Entity<TodoItemEntity>(entity =>
         {
             // テーブル名の明示（省略すると DbSet プロパティ名 "Todos" が使われる）
             entity.ToTable("Todos");

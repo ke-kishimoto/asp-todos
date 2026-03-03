@@ -28,7 +28,15 @@ public class TodosApiController : ControllerBase
     public async Task<ActionResult<IReadOnlyList<TodoListResponse>>> GetAll()
     {
         var items = await _service.GetAllAsync();
-        return Ok(new TodoListResponse { Todos = items.ToList() });
+        return Ok
+            (new TodoListResponse { Todos = items.Items.Select(item =>
+                new TodoResponseModel(
+                    Id: item.Id.Value,
+                    Title: item.Title.Value,
+                    Done: item.IsCompleted.Value,
+                    CreatedAt: item.CreatedAt.Value
+                )).ToList() 
+            });
     }
 
     // POST /api/todos
@@ -46,6 +54,9 @@ public class TodosApiController : ControllerBase
 
     public record TodoListResponse
     {
-        public required List <TodoItem> Todos { get; init; }
+        public required List <TodoResponseModel> Todos { get; init; }
     }
+
+    public record TodoResponseModel(int Id, string Title, bool Done, DateTime CreatedAt);
+
 }

@@ -9,8 +9,8 @@ public class TodoItemTest
     {
         var items = new TodoItems(
             [
-                new TodoItem(new TodoId(1), new TodoTitle("Task 1"), new TodoIsCompleted(false)),
-                new TodoItem(new TodoId(2), new TodoTitle("Task 2"), new TodoIsCompleted(false))
+                new TodoItem(new TodoId(1), new TodoTitle("Task 1"), new TodoIsCompleted(false), new TodoCreatedAt(DateTime.UtcNow)),
+                new TodoItem(new TodoId(2), new TodoTitle("Task 2"), new TodoIsCompleted(false), new TodoCreatedAt(DateTime.UtcNow))
             ]
         );
         var completedItems = items.AllCompleted();

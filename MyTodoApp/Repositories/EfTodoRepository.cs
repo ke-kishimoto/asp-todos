@@ -29,7 +29,7 @@ public class EfTodoRepository : ITodoRepository
     }
 
     // SELECT * FROM Todos ORDER BY CreatedAt DESC
-    public async Task<IReadOnlyList<TodoItem>> GetAllAsync()
+    public async Task<IReadOnlyList<TodoItemEntity>> GetAllAsync()
     {
         return await _db.Todos
             .OrderByDescending(x => x.CreatedAt)
@@ -37,16 +37,16 @@ public class EfTodoRepository : ITodoRepository
     }
 
     // SELECT * FROM Todos WHERE Id = @id
-    public async Task<TodoItem?> GetByIdAsync(int id)
+    public async Task<TodoItemEntity?> GetByIdAsync(int id)
     {
         // FindAsync は主キー検索の最短パス（1次キャッシュも利用される）
         return await _db.Todos.FindAsync(id);
     }
 
     // INSERT INTO Todos (Title, Done, CreatedAt) VALUES (@title, 0, GETUTCDATE())
-    public async Task<TodoItem> AddAsync(string title)
+    public async Task<TodoItemEntity> AddAsync(string title)
     {
-        var item = new TodoItem
+        var item = new TodoItemEntity
         {
             Title = title,
             Done = false,
@@ -84,7 +84,7 @@ public class EfTodoRepository : ITodoRepository
         return true;
     }
 
-    public async Task<IReadOnlyList<TodoItem>> GetByKeywordAsync(string keyword)
+    public async Task<IReadOnlyList<TodoItemEntity>> GetByKeywordAsync(string keyword)
     {
         return await _db.Todos
             .Where(x => x.Title.Contains(keyword))

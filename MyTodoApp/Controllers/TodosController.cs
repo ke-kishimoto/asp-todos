@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MyTodo.Domain.Todo;
 using MyTodoApp.Models;
 using MyTodoApp.Services;
 
@@ -25,14 +26,14 @@ public class TodosController : Controller
     public async Task<IActionResult> Index()
     {
         var items = await _service.GetAllAsync();
-        return View(items);
+        return View(items.Items.Select(item => new TodoViewModel(Id: item.Id.Value, Title: item.Title.Value, Done: item.IsCompleted.Value, CreatedAt: item.CreatedAt.Value)).ToList());
     }
 
     [HttpGet("search")]
     public async Task<IActionResult> search(string keyword)
     {
         var items = await _service.GetItemsAsync(keyword);
-        return View(viewName: "index", model: items);
+        return View(viewName: "index", model: items.Items.Select(item => new TodoViewModel(Id: item.Id.Value, Title: item.Title.Value, Done: item.IsCompleted.Value, CreatedAt: item.CreatedAt.Value)).ToList());
     }
 
     // GET /mvc/todos/create
@@ -64,7 +65,7 @@ public class TodosController : Controller
         var item = await _service.GetByIdAsync(id);
         if (item is null) return NotFound();
 
-        return View(item);
+        return View(new TodoViewModel(Id: item.Id.Value, Title: item.Title.Value, Done: item.IsCompleted.Value, CreatedAt: item.CreatedAt.Value)); 
     }
 
     // GET /mvc/todos/edit/1
@@ -74,12 +75,12 @@ public class TodosController : Controller
         var item = await _service.GetByIdAsync(id);
         if (item is null) return NotFound();
 
-        return View(item);
+        return View(new TodoInputEntity(item));
     }
 
     // POST /mvc/todos/edit/1
     [HttpPost("edit/{id:int}")]
-    public async Task<IActionResult> Edit(int id, [Bind("Title,Done")] TodoItem input)
+    public async Task<IActionResult> Edit(int id, [Bind("Title,Done")] TodoInputEntity input)
     {
         if (string.IsNullOrWhiteSpace(input.Title))
         {
@@ -101,7 +102,7 @@ public class TodosController : Controller
         var item = await _service.GetByIdAsync(id);
         if (item is null) return NotFound();
 
-        return View(item);
+        return View(new TodoViewModel(Id: item.Id.Value, Title: item.Title.Value, Done: item.IsCompleted.Value, CreatedAt: item.CreatedAt.Value));
     }
 
     // POST /mvc/todos/delete/1
@@ -114,4 +115,25 @@ public class TodosController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+
+    public record TodoViewModel(int Id, string Title, bool Done, DateTime CreatedAt);
+
+    public class TodoInputEntity
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = "";
+        public bool Done { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public TodoInputEntity() { }
+
+        public TodoInputEntity(TodoItem item)
+        {
+            Id = item.Id.Value;
+            Title = item.Title.Value;
+            Done = item.IsCompleted.Value;
+            CreatedAt = item.CreatedAt.Value;
+        }
+    }
+
 }

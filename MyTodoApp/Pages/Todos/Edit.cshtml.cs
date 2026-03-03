@@ -31,8 +31,8 @@ public class EditModel : PageModel
 
         Input = new InputModel
         {
-            Title = item.Title,
-            Done = item.Done
+            Title = item.Title.Value,
+            Done = item.IsCompleted.Value
         };
 
         return Page();

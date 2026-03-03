@@ -14,7 +14,7 @@ public class DeleteModel : PageModel
         _service = service;
     }
 
-    public TodoItem Item { get; private set; } = default!;
+    public TodoItemEntity Item { get; private set; } = default!;
 
     // GET /Todos/Delete?id=1
     // ★ 変更点：OnGet → OnGetAsync
@@ -23,7 +23,7 @@ public class DeleteModel : PageModel
         var item = await _service.GetByIdAsync(id);
         if (item is null) return NotFound();
 
-        Item = item;
+        Item = new TodoItemEntity(item);
         return Page();
     }
 

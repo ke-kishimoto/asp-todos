@@ -188,15 +188,14 @@ else
     private string successMessage = "";
 
     // ── 一覧データ ──
-    private IReadOnlyList<TodoItem>? items;     // null = ローディング中
+    private IReadOnlyList<TodoItemEntity>? items;     // null = ローディング中
 
     // ── サイドパネル（新規作成/編集）の状態 ──
     private bool      showPanel   = false;
-    private TodoItem? editingItem = null;       // null = 新規作成モード
-
+    private TodoItemEntity? editingItem = null;       // null = 新規作成モード
     // ── 削除確認モーダルの状態 ──
     private bool      showDeleteModal = false;
-    private TodoItem? deletingItem    = null;
+    private TodoItemEntity? deletingItem    = null;
 
     // =========================================================
     // ■ ライフサイクル
@@ -212,8 +211,8 @@ else
     private async Task LoadItems()
     {
         items = string.IsNullOrWhiteSpace(keyword)
-            ? await TodoService.GetAllAsync()
-            : await TodoService.GetItemsAsync(keyword);
+            ? (await TodoService.GetAllAsync()).Items.Select(i => new TodoItemEntity(i)).ToList()
+            : (await TodoService.GetItemsAsync(keyword)).Items.Select(i => new TodoItemEntity(i)).ToList();
     }
 
     // =========================================================
@@ -236,7 +235,7 @@ else
         showPanel   = true;
     }
 
-    private void OpenEdit(TodoItem item)
+    private void OpenEdit(TodoItemEntity item)
     {
         editingItem = item;   // 編集対象をセット
         showPanel   = true;
@@ -271,7 +270,7 @@ else
     /// MVC では別途フォーム送信や JS が必要だったが
     /// Blazor では @onchange に async メソッドを渡すだけ
     /// </summary>
-    private async Task ToggleDone(TodoItem item)
+    private async Task ToggleDone(TodoItemEntity item)
     {
         await TodoService.UpdateAsync(item.Id, item.Title, !item.Done);
         await LoadItems();
@@ -281,7 +280,7 @@ else
     // =========================================================
     // ■ 削除
     // =========================================================
-    private void OpenDeleteConfirm(TodoItem item)
+    private void OpenDeleteConfirm(TodoItemEntity item)
     {
         deletingItem    = item;
         showDeleteModal = true;

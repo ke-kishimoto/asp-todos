@@ -1,4 +1,5 @@
-using MyTodoApp.Models;
+using MyTodo.Domain.Todo;
+
 
 namespace MyTodoApp.Services;
 
@@ -21,10 +22,10 @@ namespace MyTodoApp.Services;
 // -----------------------------------------------------------------------
 public interface ITodoService
 {
-    Task<IReadOnlyList<TodoItem>> GetAllAsync();
+    Task<TodoItems> GetAllAsync();
     Task<TodoItem?> GetByIdAsync(int id);
     Task<TodoItem> CreateAsync(string title);
     Task<bool> UpdateAsync(int id, string title, bool done);
     Task<bool> DeleteAsync(int id);
-    Task<IReadOnlyList<TodoItem>> GetItemsAsync(string keyword);
+    Task<TodoItems> GetItemsAsync(string keyword);
 }

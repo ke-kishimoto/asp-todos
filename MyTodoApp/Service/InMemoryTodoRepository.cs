@@ -4,7 +4,7 @@ namespace MyTodoApp.Services;
 
 public class InMemoryTodoRepository
 {
-    private readonly List<TodoItem> _items = new();
+    private readonly List<TodoItemEntity> _items = new();
     private int _nextId = 1;
 
     public InMemoryTodoRepository()
@@ -15,11 +15,11 @@ public class InMemoryTodoRepository
         Add("Add Create/Edit/Delete next");
     }
 
-    public IReadOnlyList<TodoItem> GetAll() => _items;
+    public IReadOnlyList<TodoItemEntity> GetAll() => _items;
 
-    public TodoItem Add(string title)
+    public TodoItemEntity Add(string title)
     {
-        var item = new TodoItem
+        var item = new TodoItemEntity
         {
             Id = _nextId++,
             Title = title,
@@ -31,7 +31,7 @@ public class InMemoryTodoRepository
         return item;
     }
 
-    public TodoItem? GetById(int id)
+    public TodoItemEntity? GetById(int id)
     {
         return _items.FirstOrDefault(x => x.Id == id);
     }
