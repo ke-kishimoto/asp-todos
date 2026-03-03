@@ -1,0 +1,26 @@
+@page
+@model MyTodoApp.Pages.Todos.DetailsModel
+
+<h1>Todo Details</h1>
+
+<dl>
+    <dt>ID</dt>
+    <dd>@Model.Item.Id</dd>
+
+    <dt>Title</dt>
+    <dd>@Model.Item.Title</dd>
+
+    <dt>Done</dt>
+    <dd>@Model.Item.Done</dd>
+
+    <dt>Created</dt>
+    <dd>@Model.Item.CreatedAt.ToLocalTime()</dd>
+</dl>
+
+<p>
+    <a asp-page="/Todos/Edit" asp-route-id="@Model.Item.Id">Edit</a>
+    |
+    <a asp-page="/Todos/Delete" asp-route-id="@Model.Item.Id">Delete</a>
+    |
+    <a asp-page="/Todos/Index">Back to List</a>
+</p>

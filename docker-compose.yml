@@ -1,7 +1,7 @@
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: myrazorcrud-sqlserver
+    container_name: mytodoapp-sqlserver
     environment:
       # SA パスワード（8文字以上・大小英数字・記号を含む必要あり）
       SA_PASSWORD: "YourStrong!Passw0rd"
