@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyTodo.Domain", "MyTodo.Dom
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyTodo.Infrastructure", "MyTodo.Infrastructure\MyTodo.Infrastructure.csproj", "{6D9238D3-2DE4-4E4B-8171-A787B9E4765A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyTodo.Application", "MyTodo.Application\MyTodo.Application.csproj", "{4D000F97-BA6A-43BE-8340-D1D5F442F43A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,18 @@ Global
 		{6D9238D3-2DE4-4E4B-8171-A787B9E4765A}.Release|x64.Build.0 = Release|Any CPU
 		{6D9238D3-2DE4-4E4B-8171-A787B9E4765A}.Release|x86.ActiveCfg = Release|Any CPU
 		{6D9238D3-2DE4-4E4B-8171-A787B9E4765A}.Release|x86.Build.0 = Release|Any CPU
+		{4D000F97-BA6A-43BE-8340-D1D5F442F43A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D000F97-BA6A-43BE-8340-D1D5F442F43A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D000F97-BA6A-43BE-8340-D1D5F442F43A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4D000F97-BA6A-43BE-8340-D1D5F442F43A}.Debug|x64.Build.0 = Debug|Any CPU
+		{4D000F97-BA6A-43BE-8340-D1D5F442F43A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4D000F97-BA6A-43BE-8340-D1D5F442F43A}.Debug|x86.Build.0 = Debug|Any CPU
+		{4D000F97-BA6A-43BE-8340-D1D5F442F43A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D000F97-BA6A-43BE-8340-D1D5F442F43A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D000F97-BA6A-43BE-8340-D1D5F442F43A}.Release|x64.ActiveCfg = Release|Any CPU
+		{4D000F97-BA6A-43BE-8340-D1D5F442F43A}.Release|x64.Build.0 = Release|Any CPU
+		{4D000F97-BA6A-43BE-8340-D1D5F442F43A}.Release|x86.ActiveCfg = Release|Any CPU
+		{4D000F97-BA6A-43BE-8340-D1D5F442F43A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

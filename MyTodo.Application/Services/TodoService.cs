@@ -1,7 +1,8 @@
 using MyTodo.Infrastructure.Repositories;
 using MyTodo.Domain.Todo;
+using MyTodo.Application.Extentions;
 
-namespace MyTodo.Web.Services;
+namespace MyTodo.Application.Services;
 
 // -----------------------------------------------------------------------
 // TodoService : ITodoService の実装（ビジネスロジック層）

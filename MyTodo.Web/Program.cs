@@ -1,5 +1,4 @@
-using MyTodo.Web.Services;
-using MyTodo.Infrastructure.Repositories;
+using MyTodo.Application;
 using MyTodo.Infrastructure;
     
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +13,8 @@ builder.Services.AddControllersWithViews();
 //   - UseSqlServer で SQL Server プロバイダーを指定
 //builder.Services.AddDbContext<AppDbContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Infrastructure 層のサービスをまとめて登録する拡張メソッド
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // -----------------------------------------------------------------------
@@ -32,11 +33,9 @@ builder.Services.AddInfrastructure(builder.Configuration);
 //   - Singleton : アプリ全体で1インスタンス（InMemoryRepository はこれ）
 //   - Transient : 注入のたびに新しいインスタンス
 // -----------------------------------------------------------------------
-builder.Services.AddScoped<ITodoRepository, EfTodoRepository>();
-builder.Services.AddScoped<ITodoService, TodoService>();
+// builder.Services.AddScoped<ITodoRepository, EfTodoRepository>();
 
-// ★ 旧実装：InMemoryをそのまま残す（比較・参照用）
-builder.Services.AddSingleton<InMemoryTodoRepository>();
+builder.Services.AddApplication(builder.Configuration);
 
 // -----------------------------------------------------------------------
 // ★ Blazor Server 追加

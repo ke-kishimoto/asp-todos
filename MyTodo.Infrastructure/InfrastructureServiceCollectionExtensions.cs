@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyTodo.Infrastructure.Data;
+using MyTodo.Infrastructure.Repositories;
 
 namespace MyTodo.Infrastructure;
 
@@ -16,6 +17,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection")));
+        services.AddScoped<ITodoRepository, EfTodoRepository>();
 
         return services;
     }

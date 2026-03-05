@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MyTodo.Domain\MyTodo.Domain.csproj" />
     <ProjectReference Include="..\MyTodo.Infrastructure\MyTodo.Infrastructure.csproj" />
+    <ProjectReference Include="..\MyTodo.Application\MyTodo.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

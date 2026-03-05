@@ -1,6 +1,8 @@
 using MyTodo.Domain.Todo;
 using MyTodo.Infrastructure.Models;
 
+namespace MyTodo.Application.Extentions;
+
 public static class TodoItemExtension
 {
     public static TodoItemEntity ToEntity(this TodoItem item)

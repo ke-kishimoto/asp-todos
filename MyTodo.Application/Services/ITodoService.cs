@@ -1,7 +1,7 @@
 using MyTodo.Domain.Todo;
 
 
-namespace MyTodo.Web.Services;
+namespace MyTodo.Application.Services;
 
 // -----------------------------------------------------------------------
 // ITodoService : ビジネスロジック層（BLL）のインターフェース
