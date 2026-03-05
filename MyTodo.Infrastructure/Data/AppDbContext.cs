@@ -36,6 +36,10 @@ public class AppDbContext : DbContext
     //   await _db.SaveChangesAsync();                       // 実際にDBへ送信
     // ---------------------------------------------------------------
     public DbSet<TodoItemEntity> Todos { get; set; }
+    
+    public DbSet<ItemEntity> Items { get; set; }
+
+    public DbSet<ProductEntity> Products { get; set; }
 
     // ---------------------------------------------------------------
     // OnModelCreating : テーブル・カラムの詳細設定（Fluent API）
@@ -87,8 +91,21 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Price)
                   .HasDefaultValue(0);
         });
-    }
 
-    public DbSet<ItemEntity> Items { get; set; }
+            modelBuilder.Entity<ProductEntity>(entity => {
+                  entity.ToTable("Products");
+                  entity.HasKey(e => e.Id);
+                  entity.Property(e => e.Id)
+                        .ValueGeneratedOnAdd();
+                  entity.Property(e => e.ProductCode)
+                        .IsRequired()
+                        .HasMaxLength(50);
+                  entity.Property(e => e.ProductName)
+                        .IsRequired()
+                        .HasMaxLength(100);
+                  entity.Property(e => e.Price)
+                        .HasDefaultValue(0);
+            });
+    }
 
 }

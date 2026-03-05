@@ -1,7 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using MyTodoApp.Services;
-using MyTodo.Infrastructure.Data;
 using MyTodo.Infrastructure.Repositories;
+using MyTodo.Infrastructure;
     
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,9 +12,9 @@ builder.Services.AddControllersWithViews();
 // ★ EF Core 追加：AppDbContext を DI 登録
 //   - appsettings.json の "DefaultConnection" 接続文字列を使用
 //   - UseSqlServer で SQL Server プロバイダーを指定
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-//builder.Services.AddInfrastructure(builder.Configuration);
+//builder.Services.AddDbContext<AppDbContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // -----------------------------------------------------------------------
 // DI 登録：レイヤー構成
