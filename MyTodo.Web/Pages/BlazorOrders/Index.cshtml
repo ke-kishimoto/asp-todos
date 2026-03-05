@@ -1,0 +1,16 @@
+@page "/blazor/orders"
+
+@model MyTodo.Web.Pages.BlazorOrders.IndexModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Orders (Blazor Server)";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<component type="typeof(MyTodo.Web.BlazorComponents.Orders.Order)"
+           render-mode="ServerPrerendered" />
+
+@section Scripts {
+    <script src="_framework/blazor.server.js"></script>
+}

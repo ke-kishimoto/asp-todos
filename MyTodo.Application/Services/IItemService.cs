@@ -5,4 +5,5 @@ namespace MyTodo.Application.Services;
 public interface IItemService
 {
     Task<Item?> GetByIdAsync(int id);
+    Task<Item?> GetByItemCodeAsync(string itemCode);
 }

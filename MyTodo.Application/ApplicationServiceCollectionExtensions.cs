@@ -11,6 +11,7 @@ public static class ApplicationServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.AddScoped<ITodoService, TodoService>();
+        services.AddScoped<IItemService, ItemService>();
 
         return services;
     }

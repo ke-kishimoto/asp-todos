@@ -1,0 +1,60 @@
+
+@inject IItemService ItemService
+
+<h1>Order</h1>
+
+<form>
+  <button type="button" @onclick="AddRow">行追加</button>
+  @foreach (var (item, index) in items.Select((value, i) => (value, i))) {
+  
+    <div>
+      <label for="itemCode">Item Code:</label>
+      <InputText @bind-Value="item.ItemCode" id="itemCode" 
+      @bind-Value:after="async () => await OnItemCodeChange(item.ItemCode, index)" />
+    </div>
+    <div>
+      <label for="itemName">Item Name:</label>
+      <InputText @bind-Value="item.ItemName" id="itemName"  />
+    </div>
+    <div>
+      <label for="price">Price:</label>
+      <InputNumber @bind-Value="item.Price" id="price"  />
+    </div>
+
+    <hr />
+  }
+</form>
+
+@code {
+
+private IReadOnlyList<ItemViewModel> items = [
+    new ItemViewModel { ItemCode = "A001", ItemName = "", Price = 0 },
+];
+
+private void AddRow()
+{
+    items = items.Append(new ItemViewModel { ItemCode = "", ItemName = "", Price = 0 }).ToArray();
+
+}
+
+private async Task OnItemCodeChange(string itemCode, int index)
+{
+    var item = await ItemService.GetByItemCodeAsync(itemCode);
+   
+    if (item != null)
+    {
+        var itemViewModel = new ItemViewModel
+        {
+            ItemCode = item.Code.Value,
+            ItemName = item.Name.Value,
+            Price = item.Price.Value
+        };
+
+        var itemsList = items.ToList();
+        itemsList[index] = itemViewModel;
+        items = itemsList.ToArray();
+    }
+    
+
+}
+}

@@ -21,4 +21,15 @@ public class ItemService: IItemService
             Price: new ItemPrice(item.Price)
             );
     }
+
+    public async Task<Item?> GetByItemCodeAsync(string itemCode)
+    {
+        var item = await _repo.GetByItemCodeAsync(itemCode);
+        return item == null ? null : new Item(
+            Id: new ItemId(item.Id), 
+            Name: new ItemName(item.ItemName), 
+            Code: new ItemCode(item.ItemCode), 
+            Price: new ItemPrice(item.Price)
+            );
+    }
 }

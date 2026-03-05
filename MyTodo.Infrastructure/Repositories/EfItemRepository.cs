@@ -17,4 +17,9 @@ public class EfItemRepository : IItemRepository
     {
         return await _db.Items.FindAsync(id);
     }
+
+    public async Task<ItemEntity?> GetByItemCodeAsync(string itemCode)
+    {
+        return await _db.Items.FirstOrDefaultAsync(i => i.ItemCode == itemCode);
+    }
 }
