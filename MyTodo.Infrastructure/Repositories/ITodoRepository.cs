@@ -1,6 +1,6 @@
-using MyTodoApp.Models;
+using MyTodo.Infrastructure.Models;
 
-namespace MyTodoApp.Repositories;
+namespace MyTodo.Infrastructure.Repositories;
 
 // -----------------------------------------------------------------------
 // ITodoRepository : データアクセス層（DAL）のインターフェース

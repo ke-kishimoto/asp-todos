@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using MyTodoApp.Models;
+using MyTodo.Infrastructure.Models;
 
-namespace MyTodoApp.Data;
+namespace MyTodo.Infrastructure.Data;
 
 // -----------------------------------------------------------------------
 // AppDbContext : EF Core のデータベースコンテキスト
@@ -68,9 +68,27 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Done)
                   .HasDefaultValue(false);
 
-            // CreatedAt はデフォルトを現在時刻（DB側）に設定
+            // CreatedAt はデフォルトを現在時刻（DB側）に設定W
             entity.Property(e => e.CreatedAt)
                   .HasDefaultValueSql("GETUTCDATE()");
         });
+
+        modelBuilder.Entity<ItemEntity>(entity => {
+            entity.ToTable("Items");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                  .ValueGeneratedOnAdd();
+            entity.Property(e => e.ItemCode)
+                  .IsRequired()
+                  .HasMaxLength(50);
+            entity.Property(e => e.ItemName)
+                  .IsRequired()
+                  .HasMaxLength(100);
+            entity.Property(e => e.Price)
+                  .HasDefaultValue(0);
+        });
     }
+
+    public DbSet<ItemEntity> Items { get; set; }
+
 }

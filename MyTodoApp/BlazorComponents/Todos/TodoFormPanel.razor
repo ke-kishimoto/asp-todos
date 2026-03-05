@@ -132,7 +132,7 @@
     /// MVC では Create/Edit の 2 つのアクションだったが、
     /// Blazor ではこの 1 つのパラメーターで分岐できる
     /// </summary>
-    [Parameter] public TodoItemEntity? EditItem { get; set; }
+    [Parameter] public TodoItemViewModel? EditItem { get; set; }
 
     /// <summary>保存完了時に親へ通知するイベント</summary>
     [Parameter] public EventCallback OnSave { get; set; }

@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using MyTodoApp.Data;
-using MyTodoApp.Repositories;
 using MyTodoApp.Services;
-
+using MyTodo.Infrastructure.Data;
+using MyTodo.Infrastructure.Repositories;
+    
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,6 +15,7 @@ builder.Services.AddControllersWithViews();
 //   - UseSqlServer で SQL Server プロバイダーを指定
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+//builder.Services.AddInfrastructure(builder.Configuration);
 
 // -----------------------------------------------------------------------
 // DI 登録：レイヤー構成

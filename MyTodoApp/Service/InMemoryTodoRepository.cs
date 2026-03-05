@@ -1,4 +1,4 @@
-using MyTodoApp.Models;
+using MyTodo.Infrastructure.Models;
 
 namespace MyTodoApp.Services;
 

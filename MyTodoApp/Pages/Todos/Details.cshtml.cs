@@ -9,7 +9,7 @@ public class DetailsModel : PageModel
 {
     private readonly ITodoService _service;
 
-    public TodoItemEntity Item { get; private set; } = default!;
+    public TodoItemViewModel Item { get; private set; } = default!;
 
     public DetailsModel(ITodoService service)
     {
@@ -23,7 +23,7 @@ public class DetailsModel : PageModel
         var item = await _service.GetByIdAsync(id);
         if (item is null) return NotFound();
 
-        Item = new TodoItemEntity(item);
+        Item = new TodoItemViewModel(item);
         return Page();
     }
 }

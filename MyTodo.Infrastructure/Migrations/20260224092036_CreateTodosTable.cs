@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace MyTodoApp.Migrations
+namespace MyTodo.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class CreateTodosTable : Migration

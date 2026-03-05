@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using MyTodoApp.Data;
-using MyTodoApp.Models;
+using MyTodo.Infrastructure.Models;
+using MyTodo.Infrastructure.Data;
 
-namespace MyTodoApp.Repositories;
+namespace MyTodo.Infrastructure.Repositories;
 
 // -----------------------------------------------------------------------
 // EfTodoRepository : ITodoRepository の EF Core（SQL Server）実装

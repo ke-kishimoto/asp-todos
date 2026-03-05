@@ -1,4 +1,4 @@
-using MyTodoApp.Repositories;
+using MyTodo.Infrastructure.Repositories;
 using MyTodo.Domain.Todo;
 
 namespace MyTodoApp.Services;
@@ -29,15 +29,14 @@ public class TodoService : ITodoService
     }
 
     public async Task<TodoItems> GetAllAsync()
-        => new TodoItems((await _repo.GetAllAsync()).Select(entity => entity.ToTodoItem()).ToList());
+        => new TodoItems((await _repo.GetAllAsync()).Select(entity => entity.ToDomain()).ToList());
     
 
     public async Task<TodoItem?> GetByIdAsync(int id)
-        => (await _repo.GetByIdAsync(id))?.ToTodoItem();
-
+        => (await _repo.GetByIdAsync(id))?.ToDomain();
     // ★ ビジネスロジックの例：タイトルの前後空白を除去してから保存
     public async Task<TodoItem> CreateAsync(string title)
-        => (await _repo.AddAsync(title.Trim())).ToTodoItem();
+        => (await _repo.AddAsync(title.Trim())).ToDomain();
 
     // ★ ビジネスロジックの例：タイトルの前後空白を除去してから更新
     public Task<bool> UpdateAsync(int id, string title, bool done)
@@ -47,5 +46,5 @@ public class TodoService : ITodoService
         => _repo.DeleteAsync(id);
 
     public async Task<TodoItems> GetItemsAsync(string keyword)
-     => new TodoItems((await _repo.GetByKeywordAsync(keyword)).Select(entity => entity.ToTodoItem()).ToList());
+     => new TodoItems((await _repo.GetByKeywordAsync(keyword)).Select(entity => entity.ToDomain()).ToList());
 }
