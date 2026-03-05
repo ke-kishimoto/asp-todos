@@ -1,0 +1,22 @@
+@* =========================================================
+   Blazor コンポーネント共通の using ディレクティブ
+   MVC の _ViewImports.cshtml に相当するファイル
+   =========================================================
+   ★ MVC との対比：
+     _ViewImports.cshtml  →  @using, @addTagHelper などを一括宣言
+     _Imports.razor       →  @using, @inject などを一括宣言
+                              フォルダ内の全 .razor に自動適用される
+   ========================================================= *@
+
+@* Blazor コンポーネント基盤 *@
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+
+@* アプリ固有の名前空間 *@
+@using MyTodo.Web.Models
+@using MyTodo.Web.Services
+
+@* バリデーション属性 [Required] 等 *@
+@using System.ComponentModel.DataAnnotations

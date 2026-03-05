@@ -1,0 +1,18 @@
+@page
+@model MyTodo.Web.Pages.Todos.CreateModel
+
+<h1>Create Todo</h1>
+
+<form method="post">
+    <div>
+        <label>Title</label><br />
+        <input asp-for="Title" />
+        <div asp-validation-for="Title"></div>
+    </div>
+
+    <button type="submit">Create</button>
+</form>
+
+<p>
+    <a asp-page="/Todos/Index">Back to List</a>
+</p>
