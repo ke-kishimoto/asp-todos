@@ -18,6 +18,7 @@ public static class InfrastructureServiceCollectionExtensions
             options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection")));
         services.AddScoped<ITodoRepository, EfTodoRepository>();
+        services.AddScoped<IItemRepository, EfItemRepository>();
 
         return services;
     }

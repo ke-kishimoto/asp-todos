@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace MyTodo.Domain.Todo
 {
     public record TodoId(int Value);
