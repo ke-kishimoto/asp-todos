@@ -1,0 +1,79 @@
+@*
+  ★ MVC のモデル型：登録フォームのバリデーション状態を保持する ViewModel
+  バリデーションエラー時にコントローラーが同じモデルを返すため、
+  入力値が保持された状態でフォームが再表示される
+*@
+@model MyTodo.Web.Models.ItemCreateViewModel
+
+@{
+    ViewData["Title"] = "品目登録";
+}
+
+<h1>品目登録 <small class="text-muted fs-6">(認証済みユーザーのみ)</small></h1>
+
+@*
+  ★ asp-controller / asp-action タグヘルパー：
+    <form action="/mvc/items/create" method="post"> に変換される
+    action 属性をハードコードしないため、ルート変更に強い
+*@
+<form asp-controller="Items" asp-action="Create" method="post">
+
+    @*
+      ★ AntiForgeryToken（CSRF対策）：
+        asp-action タグヘルパーを使うと自動で <input type="hidden" name="__RequestVerificationToken"> が埋め込まれる
+        [ValidateAntiForgeryToken] 属性をコントローラーに付けると
+        このトークンを検証し、クロスサイトリクエストフォージェリを防ぐ
+    *@
+
+    <div class="mb-3">
+        @*
+          asp-for="ItemCode" タグヘルパー：
+            - <label for="ItemCode">品目コード</label> を自動生成
+            - [Display(Name="...")] 属性があればその名前を使う
+        *@
+        <label asp-for="ItemCode" class="form-label">品目コード</label>
+
+        @*
+          asp-for="ItemCode" を input に付けると：
+            - name="ItemCode"（モデルバインディングに使用）
+            - id="ItemCode"（label の for と対応）
+            - value="@Model.ItemCode"（再表示時の入力値保持）
+            - type 属性はプロパティの型から自動判定
+        *@
+        <input asp-for="ItemCode" class="form-control" placeholder="例: ITEM-001" />
+
+        @*
+          asp-validation-for : ModelState のエラーメッセージをここに表示する
+          バリデーション成功時は何も表示されない
+        *@
+        <span asp-validation-for="ItemCode" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ItemName" class="form-label">品目名</label>
+        <input asp-for="ItemName" class="form-control" placeholder="例: ノートPC" />
+        <span asp-validation-for="ItemName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Price" class="form-label">単価（円）</label>
+        @* type="number" は整数入力に最適。ブラウザのスピナーも表示される *@
+        <input asp-for="Price" type="number" class="form-control" min="0" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">登録する</button>
+        <a asp-controller="Items" asp-action="Index" class="btn btn-secondary">キャンセル</a>
+    </div>
+</form>
+
+@*
+  ★ クライアントサイドバリデーション：
+  jquery-validation ライブラリを読み込むことで、
+  サーバーに送信する前にブラウザ側でもバリデーションが動作する。
+  _ValidationScriptsPartial はプロジェクトテンプレートに含まれる共通スクリプト。
+*@
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

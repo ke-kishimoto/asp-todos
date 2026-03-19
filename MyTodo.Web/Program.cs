@@ -1,6 +1,10 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Identity.Web;
 using MyTodo.Application;
 using MyTodo.Infrastructure;
-    
+using MyTodo.Web.Auth;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -50,6 +54,50 @@ builder.Services.AddApplication(builder.Configuration);
 // -----------------------------------------------------------------------
 builder.Services.AddServerSideBlazor();
 
+// -----------------------------------------------------------------------
+// 認証設定：環境に応じて FakeAuth または Microsoft Entra ID を切り替える
+//
+// ★ appsettings.Development.json で "UseFakeAuth": true の場合
+//   → FakeAuthHandler を登録。実際の Entra ID 名義がなくても動作する。
+//
+// ★ 本番環境（または UseFakeAuth=false）の場合
+//   → Microsoft.Identity.Web で Entra ID による OpenID Connect 認証を有効化する
+//   → appsettings.json の "AzureAd" セクションが参照される
+//
+// ★ OpenID Connect (OIDC) 認証フロー（本番）：
+//   1. 未認証ユーザーが [Authorize] ページにアクセス
+//   2. ASP.NET Core が Entra ID のログインページにリダイレクト
+//   3. ユーザーが Microsoft アカウントでログイン
+//   4. Entra ID が CallbackPath (/signin-oidc) に ID トークンを返却
+//   5. ASP.NET Core がトークンを検証し、Cookie にセッションを保存
+//   6. 元のページにリダイレクト
+// -----------------------------------------------------------------------
+var useFakeAuth = builder.Environment.IsDevelopment()
+    && builder.Configuration.GetValue<bool>("UseFakeAuth");
+
+if (useFakeAuth)
+{
+    // 開発環境：FakeAuthHandler さえ 認証済みにするカスタムスキームを登録
+    // AddAuthentication() の引数にスキーム名を指定することで
+    //   DefaultAuthenticateScheme: リクエストの認証に使うスキーム
+    //   DefaultChallengeScheme   : 未認証時に呼び出すスキーム（ログイン画面へのリダイレクト等）
+    builder.Services.AddAuthentication("FakeAuth")
+        .AddScheme<AuthenticationSchemeOptions, FakeAuthHandler>("FakeAuth", null);
+}
+else
+{
+    // 本番環境：Microsoft.Identity.Web で Entra ID 認証を有効化
+    // AddMicrosoftIdentityWebApp は以下をまとめて設定するメソッド：
+    //   - AddAuthentication() : Cookie + OpenID Connect スキームの登録
+    //   - AddCookie()         : ログイン後のセッションを Cookie で管理
+    //   - AddOpenIdConnect()  : Entra ID への OIDC プロトコル設定
+    builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+        .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+}
+
+// AddAuthorization : [Authorize] 属性やポリシーベースの認可設定を DI に登録
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -64,6 +112,19 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
+// -----------------------------------------------------------------------
+// 認証・認可ミドルウェア
+//
+// ★ 必ずこの順序で登録すること！
+//   UseAuthentication → UseAuthorization の順序が額面順
+//   逆にしたりどちらかを忘れると認可が永遠失敗する
+//
+//   UseAuthentication : HTTP リクエストから認証情報（Cookie/Token）を読み取り
+//                       HttpContext.User に ClaimsPrincipal をセットする
+//   UseAuthorization  : HttpContext.User を元に [Authorize] を評価し
+//                       認可がなければ 401/403 を返す
+// -----------------------------------------------------------------------
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

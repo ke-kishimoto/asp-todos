@@ -28,17 +28,6 @@ MyTodo.Web/
 ├── Models/                             ★ 共通 ViewModel
 │   └── TodoItemViewModel.cs            ← [Razor Pages 主用途] ページへ渡すデータ形状の定義
 │
-├── Services/                           ★ ビジネスロジック層（全技術から共用）
-│   ├── ITodoService.cs                 ← [共通] サービスのインターフェース定義
-│   └── TodoService.cs                  ← [共通] サービスの実装（ドメイン層を呼び出す）
-│
-├── Service/                            ★ テスト・学習用の簡易実装
-│   └── InMemoryTodoRepository.cs       ← [共通] DB不要のインメモリ版リポジトリ（現在は未使用）
-│
-├── Extentions/                         ★ 拡張メソッド
-│   └── TodoItemExtension.cs            ← [共通] ドメインオブジェクト→ViewModelの変換ヘルパー
-│
-│
 │   ┌──────────────────────────────────────────────────────┐
 │   │  📄 RAZOR PAGES（Pages/ フォルダ）                    │
 │   │  ページ単位で .cshtml と .cshtml.cs がセットになる仕組み│
