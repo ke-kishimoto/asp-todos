@@ -1,5 +1,4 @@
-using MyTodo.Domain.Todo;
-
+using MyTodo.Application.Queries.Todos;
 
 namespace MyTodo.Web.Models;
 
@@ -11,13 +10,12 @@ public class TodoItemViewModel
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public TodoItemViewModel() { }
- 
-   public TodoItemViewModel(TodoItem item)
-    {
-       Id = item.Id.Value;
-       Title = item.Title.Value;
-       Done = item.IsCompleted.Value;
-       CreatedAt = item.CreatedAt.Value;
-    }
 
+    public TodoItemViewModel(TodoReadModel model)
+    {
+        Id = model.Id;
+        Title = model.Title;
+        Done = model.Done;
+        CreatedAt = model.CreatedAt;
+    }
 }

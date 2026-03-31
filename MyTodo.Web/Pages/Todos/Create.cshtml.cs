@@ -1,28 +1,23 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using MyTodo.Application.Services;
+using MyTodo.Application.Commands.Todos;
 
 namespace MyTodo.Web.Pages.Todos;
 
 public class CreateModel : PageModel
 {
-    private readonly ITodoService _service;
+    private readonly CreateTodoCommandHandler _createHandler;
 
-    public CreateModel(ITodoService service)
+    public CreateModel(CreateTodoCommandHandler createHandler)
     {
-        _service = service;
+        _createHandler = createHandler;
     }
 
     [BindProperty]
     public string Title { get; set; } = "";
 
-    // GET /Todos/Create
-    public void OnGet()
-    {
-    }
+    public void OnGet() { }
 
-    // POST /Todos/Create
-    // ★ 変更点：OnPost → OnPostAsync
     public async Task<IActionResult> OnPostAsync()
     {
         if (string.IsNullOrWhiteSpace(Title))
@@ -31,8 +26,7 @@ public class CreateModel : PageModel
             return Page();
         }
 
-        // ★ 変更点：_repo.Add → await _service.CreateAsync
-        await _service.CreateAsync(Title);
+        await _createHandler.HandleAsync(new CreateTodoCommand(Title));
         return RedirectToPage("/Todos/Index");
     }
 }

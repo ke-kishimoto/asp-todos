@@ -1,25 +1,23 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+using MyTodo.Application.Queries.Todos;
 using MyTodo.Web.Models;
-using MyTodo.Application.Services;
 
 namespace MyTodo.Web.Pages.Todos;
 
 public class IndexModel : PageModel
 {
-    // ★ 変更点：InMemoryTodoRepository → ITodoService に切り替え
-    //   上位層（Page）はインターフェースにのみ依存する
-    private readonly ITodoService _service;
+    private readonly ITodoQueryService _queryService;
 
     public IReadOnlyList<TodoItemViewModel> Items { get; private set; } = Array.Empty<TodoItemViewModel>();
 
-    public IndexModel(ITodoService service)
+    public IndexModel(ITodoQueryService queryService)
     {
-        _service = service;
+        _queryService = queryService;
     }
 
-    // ★ 変更点：OnGet → OnGetAsync（DB操作は非同期で行う）
     public async Task OnGetAsync()
     {
-        Items = (await _service.GetAllAsync()).Items.Select(i => new TodoItemViewModel(i)).ToList();
+        var items = await _queryService.GetAllAsync();
+        Items = items.Select(i => new TodoItemViewModel(i)).ToList();
     }
 }

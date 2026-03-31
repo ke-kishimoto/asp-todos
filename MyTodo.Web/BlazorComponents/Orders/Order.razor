@@ -1,5 +1,5 @@
-
-@inject IItemService ItemService
+﻿@using MyTodo.Application.Queries.Items
+@inject IItemQueryService QueryService
 
 <h1>Order</h1>
 
@@ -34,27 +34,19 @@ private IReadOnlyList<ItemViewModel> items = [
 private void AddRow()
 {
     items = items.Append(new ItemViewModel { ItemCode = "", ItemName = "", Price = 0 }).ToArray();
-
 }
 
 private async Task OnItemCodeChange(string itemCode, int index)
 {
-    var item = await ItemService.GetByItemCodeAsync(itemCode);
+    var item = await QueryService.GetByItemCodeAsync(itemCode);
    
     if (item != null)
     {
-        var itemViewModel = new ItemViewModel
-        {
-            ItemCode = item.Code.Value,
-            ItemName = item.Name.Value,
-            Price = item.Price.Value
-        };
+        var itemViewModel = new ItemViewModel(item);
 
         var itemsList = items.ToList();
         itemsList[index] = itemViewModel;
         items = itemsList.ToArray();
     }
-    
-
 }
 }

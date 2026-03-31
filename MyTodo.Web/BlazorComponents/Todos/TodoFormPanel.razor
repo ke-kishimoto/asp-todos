@@ -132,7 +132,7 @@
     /// MVC では Create/Edit の 2 つのアクションだったが、
     /// Blazor ではこの 1 つのパラメーターで分岐できる
     /// </summary>
-    [Parameter] public TodoItemViewModel? EditItem { get; set; }
+    [Parameter] public TodoReadModel? EditItem { get; set; }
 
     /// <summary>保存完了時に親へ通知するイベント</summary>
     [Parameter] public EventCallback OnSave { get; set; }
@@ -149,7 +149,8 @@
     ///    このコンポーネント内で直接 DB 操作できる
     ///    （親から渡す必要がない = コンポーネントの自律性）
     /// </summary>
-    [Inject] private ITodoService TodoService { get; set; } = default!;
+    [Inject] private CreateTodoCommandHandler CreateHandler { get; set; } = default!;
+    [Inject] private UpdateTodoCommandHandler UpdateHandler { get; set; } = default!;
 
     // =========================================================
     // フォームバインド用内部モデル
@@ -199,13 +200,13 @@
             {
                 // ── 新規作成 ──
                 // MVC: Controller.Create(title) に相当
-                await TodoService.CreateAsync(formModel.Title);
+                await CreateHandler.HandleAsync(new CreateTodoCommand(formModel.Title));
             }
             else
             {
                 // ── 更新 ──
                 // MVC: Controller.Edit(id, input) に相当
-                await TodoService.UpdateAsync(EditItem.Id, formModel.Title, formModel.Done);
+                await UpdateHandler.HandleAsync(new UpdateTodoCommand(EditItem.Id, formModel.Title, formModel.Done));
             }
 
             // 保存成功 → 親 (TodoList) に通知

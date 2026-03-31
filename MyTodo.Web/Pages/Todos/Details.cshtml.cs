@@ -1,26 +1,24 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using MyTodo.Application.Queries.Todos;
 using MyTodo.Web.Models;
-using MyTodo.Application.Services;
 
 namespace MyTodo.Web.Pages.Todos;
 
 public class DetailsModel : PageModel
 {
-    private readonly ITodoService _service;
+    private readonly ITodoQueryService _queryService;
 
     public TodoItemViewModel Item { get; private set; } = default!;
 
-    public DetailsModel(ITodoService service)
+    public DetailsModel(ITodoQueryService queryService)
     {
-        _service = service;
+        _queryService = queryService;
     }
 
-    // GET /Todos/Details?id=123
-    // ★ 変更点：OnGet → OnGetAsync
     public async Task<IActionResult> OnGetAsync(int id)
     {
-        var item = await _service.GetByIdAsync(id);
+        var item = await _queryService.GetByIdAsync(id);
         if (item is null) return NotFound();
 
         Item = new TodoItemViewModel(item);

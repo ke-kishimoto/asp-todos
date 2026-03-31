@@ -36,7 +36,9 @@
    親がデータを再取得 → 再レンダリングの流れ。
    ========================================================= *@
 
-@inject ITodoService TodoService
+@inject ITodoQueryService QueryService
+@inject UpdateTodoCommandHandler UpdateHandler
+@inject DeleteTodoCommandHandler DeleteHandler
 
 <h1>Todos <small class="text-muted fs-6">(Blazor Server)</small></h1>
 
@@ -188,14 +190,14 @@ else
     private string successMessage = "";
 
     // ── 一覧データ ──
-    private IReadOnlyList<TodoItemViewModel>? items;     // null = ローディング中
+    private IReadOnlyList<TodoReadModel>? items;     // null = ローディング中
 
     // ── サイドパネル（新規作成/編集）の状態 ──
     private bool      showPanel   = false;
-    private TodoItemViewModel? editingItem = null;       // null = 新規作成モード
+    private TodoReadModel? editingItem = null;       // null = 新規作成モード
     // ── 削除確認モーダルの状態 ──
     private bool      showDeleteModal = false;
-    private TodoItemViewModel? deletingItem    = null;
+    private TodoReadModel? deletingItem    = null;
 
     // =========================================================
     // ■ ライフサイクル
@@ -211,8 +213,8 @@ else
     private async Task LoadItems()
     {
         items = string.IsNullOrWhiteSpace(keyword)
-            ? (await TodoService.GetAllAsync()).Items.Select(i => new TodoItemViewModel(i)).ToList()
-            : (await TodoService.GetItemsAsync(keyword)).Items.Select(i => new TodoItemViewModel(i)).ToList();
+            ? await QueryService.GetAllAsync()
+            : await QueryService.SearchAsync(keyword);
     }
 
     // =========================================================
@@ -235,7 +237,7 @@ else
         showPanel   = true;
     }
 
-    private void OpenEdit(TodoItemViewModel item)
+    private void OpenEdit(TodoReadModel item)
     {
         editingItem = item;   // 編集対象をセット
         showPanel   = true;
@@ -270,9 +272,9 @@ else
     /// MVC では別途フォーム送信や JS が必要だったが
     /// Blazor では @onchange に async メソッドを渡すだけ
     /// </summary>
-    private async Task ToggleDone(TodoItemViewModel item)
+    private async Task ToggleDone(TodoReadModel item)
     {
-        await TodoService.UpdateAsync(item.Id, item.Title, !item.Done);
+        await UpdateHandler.HandleAsync(new UpdateTodoCommand(item.Id, item.Title, !item.Done));
         await LoadItems();
         successMessage = $"「{item.Title}」の完了状態を更新しました";
     }
@@ -280,7 +282,7 @@ else
     // =========================================================
     // ■ 削除
     // =========================================================
-    private void OpenDeleteConfirm(TodoItemViewModel item)
+    private void OpenDeleteConfirm(TodoReadModel item)
     {
         deletingItem    = item;
         showDeleteModal = true;
@@ -291,7 +293,7 @@ else
         if (deletingItem is null) return;
 
         var title = deletingItem.Title;
-        await TodoService.DeleteAsync(deletingItem.Id);
+        await DeleteHandler.HandleAsync(new DeleteTodoCommand(deletingItem.Id));
 
         showDeleteModal = false;
         deletingItem    = null;

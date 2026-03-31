@@ -1,39 +1,43 @@
 using Microsoft.AspNetCore.Mvc;
-using MyTodo.Domain.Todo;
+using MyTodo.Application.Commands.Todos;
+using MyTodo.Application.Queries.Todos;
 using MyTodo.Web.Models;
-using MyTodo.Application.Services;
 
 namespace MyTodo.Web.Controllers;
 
-// -----------------------------------------------------------------------
-// 【MVC版】Todos CRUD コントローラー
-//
-// ★ 変更点：InMemoryTodoRepository → ITodoService に切り替え
-//   かつ 全アクションを非同期（async/await）に変更
-// -----------------------------------------------------------------------
 [Route("mvc/todos")]
 public class TodosController : Controller
 {
-    private readonly ITodoService _service;
+    private readonly ITodoQueryService _queryService;
+    private readonly CreateTodoCommandHandler _createHandler;
+    private readonly UpdateTodoCommandHandler _updateHandler;
+    private readonly DeleteTodoCommandHandler _deleteHandler;
 
-    public TodosController(ITodoService service)
+    public TodosController(
+        ITodoQueryService queryService,
+        CreateTodoCommandHandler createHandler,
+        UpdateTodoCommandHandler updateHandler,
+        DeleteTodoCommandHandler deleteHandler)
     {
-        _service = service;
+        _queryService  = queryService;
+        _createHandler = createHandler;
+        _updateHandler = updateHandler;
+        _deleteHandler = deleteHandler;
     }
 
     // GET /mvc/todos
     [HttpGet("")]
     public async Task<IActionResult> Index()
     {
-        var items = await _service.GetAllAsync();
-        return View(items.Items.Select(item => new TodoViewModel(Id: item.Id.Value, Title: item.Title.Value, Done: item.IsCompleted.Value, CreatedAt: item.CreatedAt.Value)).ToList());
+        var items = await _queryService.GetAllAsync();
+        return View(items.Select(item => new TodoViewModel(item.Id, item.Title, item.Done, item.CreatedAt)).ToList());
     }
 
     [HttpGet("search")]
     public async Task<IActionResult> search(string keyword)
     {
-        var items = await _service.GetItemsAsync(keyword);
-        return View(viewName: "index", model: items.Items.Select(item => new TodoViewModel(Id: item.Id.Value, Title: item.Title.Value, Done: item.IsCompleted.Value, CreatedAt: item.CreatedAt.Value)).ToList());
+        var items = await _queryService.SearchAsync(keyword);
+        return View(viewName: "index", model: items.Select(item => new TodoViewModel(item.Id, item.Title, item.Done, item.CreatedAt)).ToList());
     }
 
     // GET /mvc/todos/create
@@ -54,7 +58,7 @@ public class TodosController : Controller
             return View();
         }
 
-        await _service.CreateAsync(title);
+        await _createHandler.HandleAsync(new CreateTodoCommand(title));
         return RedirectToAction(nameof(Index));
     }
 
@@ -62,17 +66,17 @@ public class TodosController : Controller
     [HttpGet("details/{id:int}")]
     public async Task<IActionResult> Details(int id)
     {
-        var item = await _service.GetByIdAsync(id);
+        var item = await _queryService.GetByIdAsync(id);
         if (item is null) return NotFound();
 
-        return View(new TodoViewModel(Id: item.Id.Value, Title: item.Title.Value, Done: item.IsCompleted.Value, CreatedAt: item.CreatedAt.Value)); 
+        return View(new TodoViewModel(item.Id, item.Title, item.Done, item.CreatedAt));
     }
 
     // GET /mvc/todos/edit/1
     [HttpGet("edit/{id:int}")]
     public async Task<IActionResult> Edit(int id)
     {
-        var item = await _service.GetByIdAsync(id);
+        var item = await _queryService.GetByIdAsync(id);
         if (item is null) return NotFound();
 
         return View(new TodoInputEntity(item));
@@ -89,7 +93,7 @@ public class TodosController : Controller
             return View(input);
         }
 
-        var ok = await _service.UpdateAsync(id, input.Title, input.Done);
+        var ok = await _updateHandler.HandleAsync(new UpdateTodoCommand(id, input.Title, input.Done));
         if (!ok) return NotFound();
 
         return RedirectToAction(nameof(Details), new { id });
@@ -99,10 +103,10 @@ public class TodosController : Controller
     [HttpGet("delete/{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var item = await _service.GetByIdAsync(id);
+        var item = await _queryService.GetByIdAsync(id);
         if (item is null) return NotFound();
 
-        return View(new TodoViewModel(Id: item.Id.Value, Title: item.Title.Value, Done: item.IsCompleted.Value, CreatedAt: item.CreatedAt.Value));
+        return View(new TodoViewModel(item.Id, item.Title, item.Done, item.CreatedAt));
     }
 
     // POST /mvc/todos/delete/1
@@ -110,7 +114,7 @@ public class TodosController : Controller
     [ActionName("Delete")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var ok = await _service.DeleteAsync(id);
+        var ok = await _deleteHandler.HandleAsync(new DeleteTodoCommand(id));
         if (!ok) return NotFound();
 
         return RedirectToAction(nameof(Index));
@@ -127,13 +131,12 @@ public class TodosController : Controller
 
         public TodoInputEntity() { }
 
-        public TodoInputEntity(TodoItem item)
+        public TodoInputEntity(TodoReadModel model)
         {
-            Id = item.Id.Value;
-            Title = item.Title.Value;
-            Done = item.IsCompleted.Value;
-            CreatedAt = item.CreatedAt.Value;
+            Id = model.Id;
+            Title = model.Title;
+            Done = model.Done;
+            CreatedAt = model.CreatedAt;
         }
     }
-
 }

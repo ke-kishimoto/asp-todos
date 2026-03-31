@@ -1,4 +1,4 @@
-using MyTodo.Domain.Item;
+using MyTodo.Application.Queries.Items;
 
 namespace MyTodo.Web.Models;
 
@@ -11,12 +11,11 @@ public class ItemViewModel
 
     public ItemViewModel() { }
 
-    public ItemViewModel(Item item)
+    public ItemViewModel(ItemReadModel model)
     {
-        Id = item.Id.Value;
-        ItemCode = item.Code.Value;
-        ItemName = item.Name.Value;
-        Price = item.Price.Value;
+        Id = model.Id;
+        ItemCode = model.ItemCode;
+        ItemName = model.ItemName;
+        Price = model.Price;
     }
-
 }

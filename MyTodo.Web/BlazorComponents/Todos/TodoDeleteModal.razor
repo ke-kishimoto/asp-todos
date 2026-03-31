@@ -76,7 +76,7 @@
     [Parameter] public bool IsVisible { get; set; }
 
     /// <summary>削除対象アイテム</summary>
-    [Parameter] public TodoItemViewModel? DeletingItem { get; set; }
+    [Parameter] public TodoReadModel? DeletingItem { get; set; }
 
     /// <summary>「削除する」ボタン押下時に親へ通知</summary>
     [Parameter] public EventCallback OnConfirm { get; set; }
