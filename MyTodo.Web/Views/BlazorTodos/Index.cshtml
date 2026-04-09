@@ -1,0 +1,10 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<component type="typeof(MyTodo.Web.BlazorComponents.Todos.TodoList)"
+           render-mode="ServerPrerendered" />
+
+@section Scripts {
+    <script src="_framework/blazor.server.js"></script>
+}

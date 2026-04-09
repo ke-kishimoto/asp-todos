@@ -37,9 +37,7 @@
                             <a class="nav-link text-dark" asp-controller="Todos" asp-action="Index">Todos (MVC)</a>
                         </li>
                         <li class="nav-item">
-                            @* ★ Blazor Server へのリンク
-                               asp-page で Razor Page のホストページを指定 *@
-                            <a class="nav-link text-dark" asp-page="/BlazorTodos/Index">Todos (Blazor Server)</a>
+                            <a class="nav-link text-dark" asp-controller="BlazorTodos" asp-action="Index">Todos (Blazor Server)</a>
                         </li>
                     </ul>
                 </div>
