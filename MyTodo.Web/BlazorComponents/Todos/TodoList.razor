@@ -43,41 +43,31 @@
 <h1>Todos <small class="text-muted fs-6">(Blazor Server)</small></h1>
 
 @* ── ツールバー ─────────────────────────────────────── *@
-<div class="row mb-3 align-items-center g-2">
+<cluster-l space="var(--s-1)" align="center" style="margin-block-end: var(--s0);">
 
     @* 検索フォーム *@
-    <div class="col-auto">
-        <input class="form-control"
-               @bind="keyword"
-               @bind:event="oninput"
-               placeholder="キーワード検索..."
-               style="min-width:220px" />
-    </div>
-    <div class="col-auto d-flex gap-2">
-        <button class="btn btn-primary" @onclick="Search">検索</button>
-        <button class="btn btn-outline-secondary" @onclick="Reset">リセット</button>
-    </div>
+    <input class="form-input"
+           @bind="keyword"
+           @bind:event="oninput"
+           placeholder="キーワード検索..."
+           style="min-inline-size:220px" />
+    <cluster-l space="var(--s-2)" align="center">
+        <button class="btn btn--primary" @onclick="Search">検索</button>
+        <button class="btn btn--outline" @onclick="Reset">リセット</button>
+    </cluster-l>
 
-    <div class="col-auto ms-auto">
-        @* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-           ★「新規作成」ボタン：MVC との最大の違い
-           MVC    : <a asp-action="Create"> でページ遷移
-           Blazor : @onclick で C# メソッドを呼ぶだけ
-                    → URL 変化なし、パネルがスライドインする
-           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ *@
-        <button class="btn btn-success" @onclick="OpenCreate">
-            ＋ 新規作成
-        </button>
-    </div>
-</div>
+    <button class="btn btn--success" style="margin-inline-start:auto" @onclick="OpenCreate">
+        ＋ 新規作成
+    </button>
+</cluster-l>
 
 @* ── 成功メッセージ ─────────────────────────────────── *@
 @if (!string.IsNullOrEmpty(successMessage))
 {
-    <div class="alert alert-success alert-dismissible py-2 small" role="alert">
+    <div class="alert alert--success" role="alert" style="position:relative;">
         @successMessage
-        <button type="button" class="btn-close py-2"
-                @onclick="() => successMessage = string.Empty"></button>
+        <button type="button" class="alert__close"
+                @onclick="() => successMessage = string.Empty">×</button>
     </div>
 }
 
@@ -97,8 +87,8 @@ else if (items.Count == 0)
 else
 {
     <p class="text-muted small">@items.Count 件表示</p>
-    <table class="table table-hover align-middle">
-        <thead class="table-light">
+    <table class="data-table data-table--hover">
+        <thead>
             <tr>
                 <th style="width:60px">ID</th>
                 <th>Title</th>
@@ -111,7 +101,7 @@ else
             @foreach (var item in items)
             {
                 var captured = item;
-                <tr class="@(item.Done ? "table-secondary text-muted" : "")">
+                <tr class="@(item.Done ? "data-table__row--muted" : "")">
                     <td>@item.Id</td>
                     <td>
                         @if (item.Done) { <s>@item.Title</s> }
@@ -126,8 +116,8 @@ else
                        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ *@
                     <td class="text-center">
                         <input type="checkbox"
-                               class="form-check-input fs-5"
-                               style="cursor:pointer"
+                               class="form-check__input"
+                               style="cursor:pointer;font-size:var(--s0)"
                                checked="@item.Done"
                                @onchange="async _ => await ToggleDone(captured)"
                                title="クリックで完了/未完了を切替" />
@@ -136,14 +126,9 @@ else
                     <td>@item.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</td>
 
                     <td class="text-center">
-                        @* 編集：MVC は asp-action="Edit" でページ遷移
-                                 Blazor は @onclick でパネル表示 *@
-                        <button class="btn btn-sm btn-outline-primary me-1"
+                        <button class="btn btn--sm btn--outline-primary"
                                 @onclick="() => OpenEdit(captured)">編集</button>
-
-                        @* 削除：MVC は asp-action="Delete" でページ遷移
-                                 Blazor は @onclick でモーダル表示 *@
-                        <button class="btn btn-sm btn-outline-danger"
+                        <button class="btn btn--sm btn--outline-danger"
                                 @onclick="() => OpenDeleteConfirm(captured)">削除</button>
                     </td>
                 </tr>

@@ -6,50 +6,52 @@
     <title>@ViewData["Title"] - MyTodo.Web (MVC)</title>
     <base href="/" />
     <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/01-settings.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/02-tools.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/03-generic.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/04-elements.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/05-objects.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/06-components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/07-utilities.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MyTodo.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">MyTodo.Web</a>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Todos" asp-action="Index">Todos (MVC)</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="BlazorTodos" asp-action="Index">Todos (Blazor Server)</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Items" asp-action="Index">Items (MVC)</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="BlazorOrders" asp-action="Index">Orders (Blazor Server)</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+    <header class="site-header">
+        <nav class="site-nav">
+            <a class="site-nav__brand" asp-controller="Home" asp-action="Index">MyTodo.Web</a>
+            <ul class="site-nav__links">
+                <li>
+                    <a class="site-nav__link" asp-controller="Todos" asp-action="Index">Todos (MVC)</a>
+                </li>
+                <li>
+                    <a class="site-nav__link" asp-controller="BlazorTodos" asp-action="Index">Todos (Blazor Server)</a>
+                </li>
+                <li>
+                    <a class="site-nav__link" asp-controller="Items" asp-action="Index">Items (MVC)</a>
+                </li>
+                <li>
+                    <a class="site-nav__link" asp-controller="BlazorOrders" asp-action="Index">Orders (Blazor Server)</a>
+                </li>
+            </ul>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+    <center-l gutters="var(--s0)">
+        <main role="main" style="padding-block-end: var(--s2);">
             @RenderBody()
         </main>
-    </div>
+    </center-l>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
+    <footer class="site-footer">
+        <div class="site-footer__inner">
             &copy; 2026 - MyTodo.Web (MVC)
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+

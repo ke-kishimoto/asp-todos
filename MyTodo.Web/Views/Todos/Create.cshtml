@@ -9,14 +9,10 @@
 
 <h1>Create Todo <small class="text-muted fs-6">(MVC)</small></h1>
 
-@*
-  ★ Razor Pages: <form method="post"> だけでOK（antiforgery自動付与）
-  ★ MVC        : 同様に <form method="post"> で antiforgery トークンが自動付与される
-  ★ action を省略するとアクションメソッド名が自動解決される
-*@
 <form method="post">
-    <div>
-        <label for="title">Title</label><br />
+    <stack-l space="var(--s0)">
+    <div class="form-group">
+        <label class="form-label" for="title">Title</label>
         @*
           ★ Razor Pages: <input asp-for="Title" />
                           → [BindProperty] の Title プロパティにバインド
@@ -29,16 +25,11 @@
           ★ Razor Pages: <div asp-validation-for="Title"></div>
           ★ MVC        : asp-validation-summary でモデル全体のエラーを表示
         *@
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div asp-validation-summary="ModelOnly" class="form-error"></div>
     </div>
 
-    <button type="submit" style="margin-top: 8px;">Create</button>
+    <cluster-l space="var(--s-1)">
+        <button type="submit" class="btn btn--primary">Create</button>
+        <a asp-controller="Todos" asp-action="Index" class="btn btn--outline">Back to List</a>
+    </cluster-l>
 </form>
-
-<p>
-    @*
-      ★ Razor Pages: <a asp-page="/Todos/Index">
-      ★ MVC        : <a asp-controller="Todos" asp-action="Index">
-    *@
-    <a asp-controller="Todos" asp-action="Index">Back to List</a>
-</p>

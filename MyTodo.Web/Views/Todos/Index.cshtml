@@ -9,22 +9,20 @@
     ViewData["Title"] = "Todos (MVC)";
 }
 
+<stack-l space="var(--s0)">
 <h1>Todos <small class="text-muted fs-6">(MVC)</small></h1>
 
-<p>
-    @*
-      ★ Razor Pages: <a asp-page="/Todos/Create">
-      ★ MVC        : <a asp-controller="Todos" asp-action="Create">
-    *@
-    <a asp-controller="Todos" asp-action="Create">Create New</a>
-</p>
+<cluster-l space="var(--s-1)" align="center">
+    <form asp-controller="Todos" asp-action="Search" method="get">
+        <cluster-l space="var(--s-2)" align="center">
+            <input class="form-input" style="min-inline-size:200px" type="text" name="keyword" placeholder="keyword" />
+            <button type="submit" class="btn btn--outline">検索</button>
+        </cluster-l>
+    </form>
+    <a asp-controller="Todos" asp-action="Create" class="btn btn--primary">Create New</a>
+</cluster-l>
 
-<form asp-controller="Todos" asp-action="Search" method="get">
-    <input type="text" name="keyword" placeholder="keyword" />
-    <button type="submit">検索</button>
-</form>
-
-<table class="table">
+<table class="data-table">
     <thead>
         <tr>
             <th>ID</th>
@@ -57,3 +55,4 @@
     }
     </tbody>
 </table>
+</stack-l>

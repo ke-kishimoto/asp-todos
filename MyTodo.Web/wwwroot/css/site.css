@@ -1,94 +1,11 @@
-html {
-  font-size: 14px;
-}
+/*
+  site.css — サイト固有のスタイル追加定義
+  ベーススタイルは 01-07 の ITCSS 層で管理。
+*/
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
-body {
-  margin-bottom: 60px;
-}
-
-/* ==============================================================
-   Blazor Server 用 サイドパネル スタイル
-   ==============================================================
-   ★ Blazor では CSS アニメーションをサーバー側から class の付け外しで制御
-      MVC では JS ライブラリ（Bootstrap Offcanvas 等）が必要だったが
-      Blazor の @if による DOM 操作と CSS transition の組み合わせで実現
-   ============================================================== */
-
-/* ── オーバーレイ（パネル外クリックで閉じるための背景） ── */
-.panel-overlay {
-  position: fixed;
-  inset: 0;                      /* top:0 right:0 bottom:0 left:0 の省略形 */
-  background: rgba(0, 0, 0, .35);
-  z-index: 1040;                 /* Bootstrap モーダルの backdrop と同等 */
-  cursor: pointer;
-}
-
-/* ── サイドパネル本体 ── */
-.side-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 420px;
-  max-width: 95vw;               /* モバイル対応 */
-  height: 100vh;
-  background: #fff;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, .15);
-  z-index: 1050;                 /* オーバーレイより前面 */
-  display: flex;
-  flex-direction: column;
-  /* ★ CSS transition でスライドインアニメーション
-         Blazor の @if で DOM に追加された瞬間から transition が走る
-         JS 不要でアニメーションが実現できる */
-  animation: slide-in .22s ease-out;
-}
-
-@keyframes slide-in {
-  from { transform: translateX(100%); opacity: 0; }
-  to   { transform: translateX(0);    opacity: 1; }
-}
-
-/* ── パネル内部レイアウト ── */
-.side-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid #dee2e6;
-  background: #f8f9fa;
-}
-
-.side-panel-body {
-  flex: 1;
-  overflow-y: auto;              /* 内容が多い場合はスクロール */
-  padding: 1.5rem 1.25rem;
-}
-
-.side-panel-footer {
-  padding: .75rem 1.25rem;
-  border-top: 1px solid #dee2e6;
-  background: #f8f9fa;
-}
-
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
-}
-
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* フォーカスリング（キーボードナビゲーション対応） */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 0.1rem var(--color-bg), 0 0 0 0.25rem var(--color-primary);
 }

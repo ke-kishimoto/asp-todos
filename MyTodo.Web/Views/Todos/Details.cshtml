@@ -9,34 +9,23 @@
     ViewData["Title"] = "Todo Details (MVC)";
 }
 
+<stack-l space="var(--s0)">
 <h1>Todo Details <small class="text-muted fs-6">(MVC)</small></h1>
 
-<dl>
+<dl class="def-list">
     <dt>ID</dt>
-    @*
-      ★ Razor Pages: @Model.Item.Id  （PageModel の Item プロパティ経由）
-      ★ MVC        : @Model.Id       （Model がそのまま TodoItem）
-    *@
     <dd>@Model.Id</dd>
-
     <dt>Title</dt>
     <dd>@Model.Title</dd>
-
     <dt>Done</dt>
     <dd>@Model.Done</dd>
-
     <dt>Created</dt>
     <dd>@Model.CreatedAt.ToLocalTime()</dd>
 </dl>
 
-<p>
-    @*
-      ★ Razor Pages: asp-page="/Todos/Edit" asp-route-id="@Model.Item.Id"
-      ★ MVC        : asp-controller="Todos" asp-action="Edit" asp-route-id="@Model.Id"
-    *@
-    <a asp-controller="Todos" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
-    |
-    <a asp-controller="Todos" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
-    |
-    <a asp-controller="Todos" asp-action="Index">Back to List</a>
-</p>
+<cluster-l space="var(--s-1)">
+    <a asp-controller="Todos" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn--primary">Edit</a>
+    <a asp-controller="Todos" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn--outline-danger">Delete</a>
+    <a asp-controller="Todos" asp-action="Index" class="btn btn--outline">Back to List</a>
+</cluster-l>
+</stack-l>

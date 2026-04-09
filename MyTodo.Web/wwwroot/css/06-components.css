@@ -1,0 +1,470 @@
+/* ================================================================
+   06-components.css
+   再利用可能なUIコンポーネントのスタイル
+   ================================================================ */
+
+
+/* ── サイトヘッダー / ナビゲーション ─────────────────────────── */
+
+.site-header {
+  background-color: var(--color-bg);
+  border-block-end: var(--border-thin) solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  margin-block-end: var(--s1);
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1);
+  padding-inline: var(--s1);
+  padding-block: var(--s-1);
+  max-inline-size: var(--measure);
+  margin-inline: auto;
+}
+
+.site-nav__brand {
+  font-weight: 700;
+  font-size: var(--s0);
+  color: var(--color-text);
+  text-decoration: none;
+  margin-inline-end: var(--s1);
+}
+
+.site-nav__brand:hover {
+  color: var(--color-text);
+}
+
+.site-nav__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  list-style: none;
+  flex-grow: 1;
+}
+
+.site-nav__link {
+  display: inline-block;
+  padding: var(--s-3) var(--s-2);
+  color: var(--color-text);
+  text-decoration: none;
+  border-radius: var(--border-radius-sm);
+}
+
+.site-nav__link:hover {
+  color: var(--color-primary);
+  background-color: var(--color-bg-muted);
+}
+
+/* ── サイトフッター ─────────────────────────────────────────── */
+
+.site-footer {
+  border-block-start: var(--border-thin) solid var(--color-border);
+  padding-block: var(--s-1);
+  color: var(--color-text-muted);
+  font-size: var(--s-1);
+  margin-block-start: var(--s2);
+}
+
+.site-footer__inner {
+  max-inline-size: var(--measure);
+  margin-inline: auto;
+  padding-inline: var(--s1);
+}
+
+
+/* ── ボタン ──────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-2) var(--s0);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  line-height: var(--line-height-base);
+  text-decoration: none;
+  cursor: pointer;
+  border: var(--border-thin) solid transparent;
+  border-radius: var(--border-radius);
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.btn--primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.btn--primary:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  color: var(--color-primary-text);
+}
+
+.btn--secondary {
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: var(--color-secondary-text);
+}
+
+.btn--secondary:hover {
+  background-color: var(--color-secondary-dark);
+  border-color: var(--color-secondary-dark);
+  color: var(--color-secondary-text);
+}
+
+.btn--outline {
+  background-color: transparent;
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+.btn--outline:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-text);
+}
+
+.btn--outline-primary {
+  background-color: transparent;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn--outline-primary:hover {
+  background-color: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.btn--danger {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+  color: #fff;
+}
+
+.btn--danger:hover {
+  background-color: #bb2d3b;
+  border-color: #b02a37;
+  color: #fff;
+}
+
+.btn--outline-danger {
+  background-color: transparent;
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.btn--outline-danger:hover {
+  background-color: var(--color-danger);
+  color: #fff;
+}
+
+.btn--success {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  color: #fff;
+}
+
+.btn--success:hover {
+  background-color: #157347;
+  color: #fff;
+}
+
+.btn--sm {
+  padding: var(--s-3) var(--s-2);
+  font-size: var(--s-1);
+}
+
+.btn--close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: var(--s1);
+  line-height: 1;
+}
+
+.btn--close:hover {
+  color: var(--color-text);
+}
+
+
+/* ── テーブル ────────────────────────────────────────────────── */
+
+.data-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  padding: var(--s-2) var(--s-1);
+  text-align: start;
+  vertical-align: middle;
+  border-bottom: var(--border-thin) solid var(--color-border);
+}
+
+.data-table thead th {
+  font-weight: 600;
+  background-color: var(--color-bg-subtle);
+  border-block-end: 2px solid var(--color-border);
+}
+
+.data-table--striped tbody tr:nth-child(even) {
+  background-color: var(--color-bg-subtle);
+}
+
+.data-table--hover tbody tr:hover {
+  background-color: var(--color-bg-muted);
+}
+
+.data-table__row--muted {
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-subtle);
+}
+
+
+/* ── フォーム ────────────────────────────────────────────────── */
+
+.form-group {
+  margin-block-end: var(--s0);
+}
+
+.form-label {
+  display: block;
+  margin-block-end: var(--s-3);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.form-input {
+  display: block;
+  inline-size: 100%;
+  padding: var(--s-2) var(--s-1);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--border-radius);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance: none;
+}
+
+.form-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+  outline: 0;
+}
+
+.form-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.form-check__input {
+  inline-size: 1rem;
+  block-size: 1rem;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+.form-check__label {
+  cursor: pointer;
+}
+
+.form-error {
+  display: block;
+  margin-block-start: var(--s-3);
+  font-size: var(--s-1);
+  color: var(--color-danger);
+}
+
+
+/* ── アラート ────────────────────────────────────────────────── */
+
+.alert {
+  padding: var(--s-1) var(--s0);
+  border-radius: var(--border-radius);
+  border: var(--border-thin) solid transparent;
+  font-size: var(--s-1);
+}
+
+.alert--success {
+  background-color: var(--color-success-bg);
+  border-color: #a3cfbb;
+  color: var(--color-success-text);
+}
+
+.alert--warning {
+  background-color: var(--color-warning-bg);
+  border-color: #ffe69c;
+  color: var(--color-warning-text);
+}
+
+.alert--danger {
+  background-color: var(--color-danger-bg);
+  border-color: #f1aeb5;
+  color: var(--color-danger-text);
+}
+
+.alert__close {
+  float: inline-end;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: var(--s0);
+  line-height: 1;
+  color: inherit;
+  opacity: 0.6;
+}
+
+.alert__close:hover {
+  opacity: 1;
+}
+
+
+/* ── サイドパネル ────────────────────────────────────────────── */
+/* (site.css から移動) */
+
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .35);
+  z-index: 1040;
+  cursor: pointer;
+}
+
+.side-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  inline-size: 420px;
+  max-inline-size: 95vw;
+  block-size: 100vh;
+  background: var(--color-bg);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, .15);
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  animation: slide-in .22s ease-out;
+}
+
+@keyframes slide-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.side-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s0) var(--s1);
+  border-block-end: var(--border-thin) solid var(--color-border);
+  background: var(--color-bg-subtle);
+}
+
+.side-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--s1);
+}
+
+.side-panel-footer {
+  padding: var(--s-1) var(--s1);
+  border-block-start: var(--border-thin) solid var(--color-border);
+  background: var(--color-bg-subtle);
+}
+
+
+/* ── モーダル ────────────────────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .5);
+  z-index: 1040;
+}
+
+.modal-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s1);
+}
+
+.modal-content {
+  background: var(--color-bg);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, .2);
+  inline-size: 100%;
+  max-inline-size: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s0) var(--s1);
+  border-block-end: var(--border-thin) solid var(--color-border);
+}
+
+.modal-title {
+  font-size: var(--s0);
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: var(--s1);
+}
+
+.modal-footer {
+  display: flex;
+  gap: var(--s-1);
+  justify-content: flex-end;
+  padding: var(--s-1) var(--s1);
+  border-block-start: var(--border-thin) solid var(--color-border);
+}
+
+
+/* ── 定義リスト（Details ページ） ────────────────────────────── */
+
+.def-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--s-2) var(--s0);
+  align-items: baseline;
+}
+
+.def-list dt {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-size: var(--s-1);
+}
+
+.def-list dd {
+  margin: 0;
+}

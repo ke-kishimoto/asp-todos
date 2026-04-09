@@ -9,28 +9,22 @@
     ViewData["Title"] = "Delete Todo (MVC)";
 }
 
+<stack-l space="var(--s0)">
 <h1>Delete Todo <small class="text-muted fs-6">(MVC)</small></h1>
 
 <p>本当に削除しますか？</p>
 
-<dl>
+<dl class="def-list">
     <dt>ID</dt>
-    @*
-      ★ Razor Pages: @Model.Item.Id
-      ★ MVC        : @Model.Id
-    *@
     <dd>@Model.Id</dd>
-
     <dt>Title</dt>
     <dd>@Model.Title</dd>
 </dl>
 
-@*
-  ★ Razor Pages: <form method="post"> だけでOK
-  ★ MVC        : asp-route-id="@Model.Id" でルートに id を埋め込む
-                 [ActionName("Delete")] により DeleteConfirmed アクションに紐づく
-*@
 <form method="post" asp-controller="Todos" asp-action="Delete" asp-route-id="@Model.Id">
-    <button type="submit" style="color:red;">Delete</button>
-    <a asp-controller="Todos" asp-action="Details" asp-route-id="@Model.Id">Cancel</a>
+    <cluster-l space="var(--s-1)">
+        <button type="submit" class="btn btn--danger">Delete</button>
+        <a asp-controller="Todos" asp-action="Details" asp-route-id="@Model.Id" class="btn btn--outline">Cancel</a>
+    </cluster-l>
 </form>
+</stack-l>

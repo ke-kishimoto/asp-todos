@@ -1,0 +1,35 @@
+/* ── テキスト配置 ── */
+.text-center  { text-align: center; }
+.text-start   { text-align: start; }
+.text-end     { text-align: end; }
+
+/* ── テキストカラー ── */
+.text-muted   { color: var(--color-text-muted); }
+.text-danger  { color: var(--color-danger); }
+.text-warning { color: var(--color-warning-text); }
+.text-success { color: var(--color-success); }
+
+/* ── フォントサイズ ── */
+.fs-6  { font-size: var(--s-1); }
+.small { font-size: var(--s-1); }
+
+/* ── フォントウェイト ── */
+.fw-semibold { font-weight: 600; }
+.fw-bold     { font-weight: 700; }
+
+/* ── マージン ── */
+.ms-auto { margin-inline-start: auto; }
+.mb-0    { margin-block-end: 0; }
+
+/* ── アクセシビリティ ── */
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

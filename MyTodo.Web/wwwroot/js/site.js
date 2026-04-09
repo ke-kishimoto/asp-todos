@@ -1,4 +1,9 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿// Every Layout カスタム要素の登録
+import Box from '../components/Box.js';
+import Center from '../components/Center.js';
+import Cluster from '../components/Cluster.js';
+import Grid from '../components/Grid.js';
+import Imposter from '../components/Imposter.js';
+import Sidebar from '../components/Sidebar.js';
+import Stack from '../components/Stack.js';
 
-// Write your JavaScript code.

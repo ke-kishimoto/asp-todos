@@ -24,46 +24,40 @@
 @if (IsVisible && DeletingItem is not null)
 {
     @* ── モーダルバックドロップ ── *@
-    <div class="modal-backdrop fade show"></div>
+    <div class="modal-overlay"></div>
 
     @* ── モーダル本体 ── *@
-    @* Bootstrap のモーダルを手動で show 状態にする *@
-    <div class="modal fade show d-block" tabindex="-1" role="dialog"
+    <div class="modal-dialog" tabindex="-1" role="dialog"
          aria-modal="true" aria-labelledby="deleteModalLabel">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+        <div class="modal-content">
 
-                @* ── ヘッダー *@
-                <div class="modal-header">
-                    <h5 class="modal-title text-danger" id="deleteModalLabel">
-                        削除の確認
-                    </h5>
-                    <button type="button" class="btn-close"
-                            @onclick="Cancel" aria-label="閉じる"></button>
-                </div>
-
-                @* ── ボディ *@
-                <div class="modal-body">
-                    <p class="mb-1">以下のアイテムを削除しますか？</p>
-                    <div class="alert alert-warning py-2 mb-0">
-                        <strong>ID:</strong> @DeletingItem.Id　
-                        <strong>タイトル:</strong> @DeletingItem.Title
-                    </div>
-                    <p class="text-muted small mt-2 mb-0">この操作は元に戻せません。</p>
-                </div>
-
-                @* ── フッター *@
-                <div class="modal-footer">
-                    @* ★ ボタンクリック → C# のコールバックを呼ぶだけ
-                           MVC: DELETE フォームを submit して HTTP POST
-                           Blazor: イベントハンドラで直接 Service を呼ぶ *@
-                    <button type="button" class="btn btn-outline-secondary"
-                            @onclick="Cancel">キャンセル</button>
-                    <button type="button" class="btn btn-danger"
-                            @onclick="Confirm">削除する</button>
-                </div>
-
+            @* ── ヘッダー *@
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="deleteModalLabel">
+                    削除の確認
+                </h5>
+                <button type="button" class="btn--close"
+                        @onclick="Cancel" aria-label="閉じる">×</button>
             </div>
+
+            @* ── ボディ *@
+            <div class="modal-body">
+                <p>以下のアイテムを削除しますか？</p>
+                <div class="alert alert--warning">
+                    <strong>ID:</strong> @DeletingItem.Id　
+                    <strong>タイトル:</strong> @DeletingItem.Title
+                </div>
+                <p class="text-muted small" style="margin-block-start: var(--s-2);"> この操作は元に戻せません。</p>
+            </div>
+
+            @* ── フッター *@
+            <div class="modal-footer">
+                <button type="button" class="btn btn--outline"
+                        @onclick="Cancel">キャンセル</button>
+                <button type="button" class="btn btn--danger"
+                        @onclick="Confirm">削除する</button>
+            </div>
+
         </div>
     </div>
 }

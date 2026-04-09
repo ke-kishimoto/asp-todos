@@ -46,7 +46,7 @@
                    MVC では別々のアクション (Create / Edit) だったが
                    Blazor は同一コンポーネントで分岐できる *@
             <h5 class="mb-0">@(EditItem is null ? "新規作成" : "編集")</h5>
-            <button type="button" class="btn-close" @onclick="Cancel" aria-label="閉じる"></button>
+            <button type="button" class="btn--close" @onclick="Cancel" aria-label="閉じる">×</button>
         </div>
 
         @* ■ フォーム本体 *@
@@ -66,41 +66,36 @@
                 <DataAnnotationsValidator />
 
                 @* ─── タイトル ─── *@
-                <div class="mb-3">
+                <div class="form-group">
                     <label class="form-label fw-semibold">タイトル</label>
-                    @* InputText : <input> の Blazor ラッパー
-                                  @bind-Value で formModel.Title と双方向バインド
-                                  MVC の <input asp-for="Title"> に相当 *@
-                    <InputText class="form-control" @bind-Value="formModel.Title"
+                    <InputText class="form-input" @bind-Value="formModel.Title"
                                placeholder="タイトルを入力..." />
-                    @* ValidationMessage : [Required] エラーをここに表示 *@
-                    <ValidationMessage For="() => formModel.Title" class="text-danger small mt-1" />
+                    <ValidationMessage For="() => formModel.Title" class="form-error" />
                 </div>
 
                 @* ─── 完了フラグ（編集時のみ表示） ─── *@
-                @if (EditItem is not null)
+                                @if (EditItem is not null)
                 {
-                    <div class="mb-4 form-check">
-                        @* InputCheckbox : <input type="checkbox"> の Blazor ラッパー *@
-                        <InputCheckbox class="form-check-input" id="doneCheck"
+                    <div class="form-check" style="margin-block: var(--s-1) 0;">
+                        <InputCheckbox class="form-check__input" id="doneCheck"
                                        @bind-Value="formModel.Done" />
-                        <label class="form-check-label" for="doneCheck">完了</label>
+                        <label class="form-check__label" for="doneCheck">完了</label>
                     </div>
                 }
 
-                @* ─── ボタン ─── *@
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">
+                                @* ─── ボタン ─── *@
+                <cluster-l space="var(--s-1)" style="margin-block-start: var(--s0);">
+                    <button type="submit" class="btn btn--primary">
                         @(EditItem is null ? "作成" : "更新")
                     </button>
-                    <button type="button" class="btn btn-outline-secondary"
+                    <button type="button" class="btn btn--outline"
                             @onclick="Cancel">キャンセル</button>
-                </div>
+                </cluster-l>
 
                 @* エラーメッセージ表示 *@
-                @if (!string.IsNullOrEmpty(errorMessage))
+                                @if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    <div class="alert alert-danger mt-3 py-2 small">@errorMessage</div>
+                    <div class="alert alert--danger" style="margin-block-start: var(--s0);">@errorMessage</div>
                 }
             </EditForm>
         </div>
