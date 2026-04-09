@@ -29,14 +29,14 @@ dotnetSample.sln
 ┌───────────────────▼──────────────────────────┐
 │           MyTodo.Application                 │
 │  Command Handlers / Query Services           │
-│  （ビジネスロジック・ユースケース）            │
-└──────────┬────────────────────┬──────────────┘
+│  （ビジネスロジック・ユースケース）             │
+└──────────┬────────────────────▲──────────────┘
            │ 依存               │ 依存
-┌──────────▼──────────┐ ┌───────▼──────────────┐
-│   MyTodo.Domain     │ │ MyTodo.Infrastructure │
-│  TodoItem / Item    │ │ EF Core / SQL Server  │
-│  (value objects)    │ │ Repository 実装        │
-└─────────────────────┘ └──────────────────────┘
+┌──────────▼──────────┐       ┌──────────────────────┐
+│   MyTodo.Domain     │ 依存  │ MyTodo.Infrastructure │
+│  TodoItem / Item    │◀ ──── │ EF Core / SQL Server  │
+│  (value objects)    │       │ Repository 実装       │
+└─────────────────────┘       └──────────────────────┘
 ```
 
 > 依存の方向は常に **外側 → 内側** です（Domain が他を参照することはありません）。
