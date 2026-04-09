@@ -1,7 +1,7 @@
 # MyTodo アプリケーション
 
 .NET 10 を使ったレイヤードアーキテクチャのサンプルアプリケーションです。  
-Todo 管理機能を題材に、**Razor Pages / MVC / Blazor Server / Web API** の 4 つのアプローチを同一ソリューション内で実装・比較できます。
+Todo 管理機能を題材に、**MVC / Blazor Server / Web API** の 3 つのアプローチを同一ソリューション内で実装・比較できます。
 
 ---
 
@@ -21,22 +21,22 @@ dotnetSample.sln
 ## レイヤー構成と依存関係
 
 ```
-┌─────────────────────────────────────────┐
-│          MyTodo.Web (UI / API)          │
-│  Razor Pages / MVC / Blazor / REST API  │
-└──────────────────┬──────────────────────┘
-                   │ 依存
-┌──────────────────▼──────────────────────┐
-│        MyTodo.Application               │
-│  ITodoService / IItemService            │
-│  (ビジネスロジック・ユースケース)       │
-└──────────┬───────────────────┬──────────┘
-           │ 依存              │ 依存
-┌──────────▼──────────┐ ┌─────▼───────────────────┐
-│   MyTodo.Domain     │ │  MyTodo.Infrastructure   │
-│  TodoItem / Item    │ │  EF Core / SQL Server    │
-│  (value objects)    │ │  Repository 実装          │
-└─────────────────────┘ └──────────────────────────┘
+┌──────────────────────────────────────────────┐
+│           MyTodo.Web (UI / API)              │
+│      MVC / Blazor Server / REST API          │
+└───────────────────┬──────────────────────────┘
+                    │ 依存
+┌───────────────────▼──────────────────────────┐
+│           MyTodo.Application                 │
+│  Command Handlers / Query Services           │
+│  （ビジネスロジック・ユースケース）            │
+└──────────┬────────────────────┬──────────────┘
+           │ 依存               │ 依存
+┌──────────▼──────────┐ ┌───────▼──────────────┐
+│   MyTodo.Domain     │ │ MyTodo.Infrastructure │
+│  TodoItem / Item    │ │ EF Core / SQL Server  │
+│  (value objects)    │ │ Repository 実装        │
+└─────────────────────┘ └──────────────────────┘
 ```
 
 > 依存の方向は常に **外側 → 内側** です（Domain が他を参照することはありません）。
@@ -64,6 +64,7 @@ dotnetSample.sln
 | `Data/AppDbContext.cs` | EF Core の DbContext（`Todos` / `Items` / `Products` テーブル） |
 | `Models/` | DB テーブルに対応するエンティティクラス（`TodoItemEntity` など） |
 | `Repositories/` | `ITodoRepository` / `IItemRepository` の EF Core 実装 |
+| `Queries/` | `ITodoQueryService` / `IItemQueryService` の EF Core 実装 |
 | `Migrations/` | EF Core マイグレーションファイル |
 | `DB/` | ストアドプロシージャ SQL ファイル |
 | `InfrastructureServiceCollectionExtensions.cs` | DI 登録の拡張メソッド |
@@ -77,43 +78,62 @@ dotnetSample.sln
 
 | 要素 | 内容 |
 |------|------|
-| `Services/ITodoService.cs` | Todo のユースケースインターフェース |
-| `Services/TodoService.cs` | ユースケースの実装（タイトルのトリムなどビジネスロジック） |
-| `Services/IItemService.cs` | アイテムのユースケースインターフェース |
-| `Services/ItemService.cs` | アイテムユースケースの実装 |
-| `Extentions/TodoItemExtension.cs` | Domain ↔ Infrastructure エンティティの変換拡張メソッド |
+| `Commands/Todos/` | Todo の作成・更新・削除コマンドハンドラー |
+| `Commands/Items/` | Item の作成コマンドハンドラー |
+| `Queries/Todos/` | Todo のクエリサービスインターフェース |
+| `Queries/Items/` | Item のクエリサービスインターフェース |
+| `Repositories/` | リポジトリインターフェース定義 |
 | `ApplicationServiceCollectionExtensions.cs` | DI 登録の拡張メソッド |
 
-- Controller / Page は **インターフェース（`ITodoService`）にのみ依存** します。  
+- Controller / Blazor コンポーネントは **インターフェースにのみ依存** します。  
   実装を差し替えてもプレゼンテーション層のコードを変更する必要がありません。
 
 ---
 
 ### MyTodo.Web
 
-ASP.NET Core のエントリーポイントで、4 種類の UI / API アプローチを含みます。
+ASP.NET Core のエントリーポイントで、3 種類の UI / API アプローチを含みます。
 
-| パス | アプローチ | URL プレフィックス |
-|------|-----------|-------------------|
-| `Pages/Todos/` | **Razor Pages** | `/Todos/...` |
-| `Controllers/TodosController.cs` | **MVC** (Razor View) | `/mvc/todos/...` |
-| `BlazorComponents/Todos/` | **Blazor Server** | `/BlazorTodos` |
-| `BlazorComponents/Orders/` | **Blazor Server** | `/BlazorOrders` |
-| `Controllers/TodosApiController.cs` | **REST API** | `/api/todos` |
+| Controller / Component | アプローチ | URL |
+|---|---|---|
+| `HomeController` | **MVC** | `/` |
+| `TodosController` | **MVC** (Razor View) | `/mvc/todos/...` |
+| `ItemsController` | **MVC** (Razor View・認証必須) | `/mvc/items/...` |
+| `BlazorTodosController` + `TodoList.razor` | **Blazor Server** | `/blazor/todos` |
+| `BlazorOrdersController` + `Order.razor` | **Blazor Server** | `/blazor/orders` |
+| `TodosApiController` | **REST API** | `/api/todos` |
 
-| 要素 | 内容 |
-|------|------|
-| `Program.cs` | DI 登録・ミドルウェア構成のエントリーポイント |
-| `Models/` | ビュー向け ViewModel（`TodoItemViewModel`, `ItemViewModel`） |
+#### Blazor のホスティング構造
+
+Blazor 画面は **MVC Controller が HTTP 入口** となり、View が Blazor コンポーネントをホストします。  
+初回の HTTP リクエストを Controller が受け取り、View をレンダリングした後は WebSocket (SignalR) で差分更新します。
+
+```
+ブラウザ → GET /blazor/todos
+  → BlazorTodosController.Index()
+  → Views/BlazorTodos/Index.cshtml（<component> タグで TodoList.razor を埋め込む）
+  → blazor.server.js が WebSocket 接続を確立
+  → 以降は Blazor Server が差分 DOM 更新で動作
+```
 
 #### `Program.cs` で登録されるサービス
+
 ```
-AddInfrastructure()   → AppDbContext + EfTodoRepository + EfItemRepository
-AddApplication()      → TodoService + ItemService
-AddControllersWithViews() → MVC
-AddRazorPages()       → Razor Pages
-AddServerSideBlazor() → Blazor Server
+AddInfrastructure()       → AppDbContext + EfTodoRepository + EfItemRepository + QueryServices
+AddApplication()          → Command Handlers + Query Service bindings
+AddControllersWithViews() → MVC（Views/ フォルダのテンプレートを使用）
+AddServerSideBlazor()     → Blazor Server（SignalR による WebSocket 通信）
+AddAuthentication()       → 開発時: FakeAuth / 本番: Microsoft Entra ID (OIDC)
 ```
+
+#### 認証
+
+| 環境 | 設定 | 動作 |
+|------|------|------|
+| 開発（`UseFakeAuth: true`） | `appsettings.Development.json` | `FakeAuthHandler` で常時認証済み扱い |
+| 本番 | `appsettings.json` の `AzureAd` セクション | Microsoft Entra ID による OpenID Connect 認証 |
+
+`ItemsController` には `[Authorize]` が付いており、認証が必要です。
 
 ---
 
@@ -130,9 +150,10 @@ AddServerSideBlazor() → Blazor Server
 | 技術 | バージョン / 詳細 |
 |------|------------------|
 | .NET | 10.0 |
-| ASP.NET Core | Razor Pages / MVC / Blazor Server |
+| ASP.NET Core | MVC / Blazor Server |
 | Entity Framework Core | 10.0.3（SQL Server プロバイダー） |
 | SQL Server | 2022（Docker コンテナ） |
+| 認証 | Microsoft.Identity.Web（Entra ID / OIDC） |
 | テスト | xUnit / coverlet |
 
 ---
@@ -174,7 +195,7 @@ dotnet test
 |--------|-------------|------|
 | `AppDbContext` | Scoped | EF Core 標準。リクエストごとにトランザクションを管理 |
 | `EfTodoRepository` | Scoped | DbContext と合わせる必要があるため |
-| `TodoService` | Scoped | Repository と合わせる |
+| Command Handlers / Query Services | Scoped | Repository と合わせる |
 
 ---
 
