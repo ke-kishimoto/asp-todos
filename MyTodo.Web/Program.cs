@@ -10,12 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// ★ EF Core 追加：AppDbContext を DI 登録
-//   - appsettings.json の "DefaultConnection" 接続文字列を使用
-//   - UseSqlServer で SQL Server プロバイダーを指定
-//builder.Services.AddDbContext<AppDbContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 // Infrastructure 層のサービスをまとめて登録する拡張メソッド
 builder.Services.AddInfrastructure(builder.Configuration);
 
