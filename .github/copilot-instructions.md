@@ -33,7 +33,7 @@ dotnetSample.sln
 - CommandHandler が `BeginTransactionAsync()` → 操作 → `CommitAsync()` / `RollbackAsync()` でトランザクション境界を制御
 - 通常の 1 操作ずつ保存するリポジトリ（`EfTodoRepository` 等）は従来どおり自前で `SaveChangesAsync()` を呼ぶ
 
-詳細は [.github/skills/SKILL-ADVANCED-PATTERNS.md](.github/skills/SKILL-ADVANCED-PATTERNS.md) を参照。
+詳細は [.github/skills/SKILL-PATTERN-BLAZOR-BULK.md](.github/skills/SKILL-PATTERN-BLAZOR-BULK.md)（パターン C）を参照。
 
 ---
 
@@ -69,18 +69,28 @@ MyTodo.Domain  ←  MyTodo.Infrastructure（Interfaceを通じて逆依存）
 詳細なコーディングパターンは以下の SKILL ファイルを参照してください。
 
 - [.github/skills/SKILL.md](.github/skills/SKILL.md) — 各層の基本実装パターン
-- [.github/skills/SKILL-ADVANCED-PATTERNS.md](.github/skills/SKILL-ADVANCED-PATTERNS.md) — インライン編集テーブルによる一画面 CRUD / UnitOfWork パターン
+
+### 実装パターン（パターン別 SKILL ファイル）
+
+新しいリソース（画面・API）を実装するときは、以下 3 つのパターンから選択してください。  
+各パターンファイルに Domain → Application → Infrastructure → Web の全スタック実装例が記載されています。
+
+| パターン | 名称 | 採用シナリオ | SKILL ファイル |
+|---|---|---|---|
+| **A** | MVC フルサイクル CRUD | HTTP 画面遷移型の標準 CRUD | [SKILL-PATTERN-MVC.md](.github/skills/SKILL-PATTERN-MVC.md) |
+| **B** | Blazor リアルタイム CRUD | 一覧起点のリアルタイム操作（SPA ライク） | [SKILL-PATTERN-BLAZOR-SPA.md](.github/skills/SKILL-PATTERN-BLAZOR-SPA.md) |
+| **C** | Blazor 一括インライン編集 | テーブル行を直接編集して一括保存 + トランザクション | [SKILL-PATTERN-BLAZOR-BULK.md](.github/skills/SKILL-PATTERN-BLAZOR-BULK.md) |
 
 ---
 
 ## フロントエンド方針
 
-| シナリオ | 採用技術 |
-|---|---|
-| 画面遷移・通常の CRUD 操作 | **MVC** (Controller + Razor View) |
-| 動的な行追加・インタラクティブな操作 | **Blazor Server** |
-| 一覧表内で複数行を一括 CRUD（インライン編集） | **Blazor Server**（インライン編集テーブルパターン） |
-| 外部クライアント向けデータ提供 | **Web API** (JSON) |
+| シナリオ | 採用パターン | 採用技術 |
+|---|---|---|
+| 画面遷移・通常の CRUD 操作 | **パターン A** | MVC (Controller + Razor View) |
+| 一覧起点のリアルタイム CRUD | **パターン B** | Blazor Server（親子コンポーネント構成） |
+| 一覧表内で複数行を一括 CRUD（インライン編集） | **パターン C** | Blazor Server（RowModel + UnitOfWork） |
+| 外部クライアント向けデータ提供 | — | Web API (JSON) |
 
 ### URL 設計
 

@@ -4,6 +4,20 @@
 
 ---
 
+## 実装パターン（SKILL ファイル早見表）
+
+新しいリソースを実装するときは、以下の 3 パターンから目的に合ったものを選んでください。
+
+| パターン | 名称 | 採用シナリオ | SKILL ファイル |
+|---|---|---|---|
+| **A** | MVC フルサイクル CRUD | HTTP 画面遷移型の標準 CRUD | [SKILL-PATTERN-MVC.md](SKILL-PATTERN-MVC.md) |
+| **B** | Blazor リアルタイム CRUD | 一覧起点のリアルタイム操作（SPA ライク） | [SKILL-PATTERN-BLAZOR-SPA.md](SKILL-PATTERN-BLAZOR-SPA.md) |
+| **C** | Blazor 一括インライン編集 | テーブル行を直接編集して一括保存 + トランザクション | [SKILL-PATTERN-BLAZOR-BULK.md](SKILL-PATTERN-BLAZOR-BULK.md) |
+
+各パターンファイルには、Domain → Application → Infrastructure → Web の全スタック実装例が含まれています。
+
+---
+
 ## 目次
 
 1. [Domain 層](#1-domain-層)
@@ -11,15 +25,12 @@
 3. [Application 層（Query）](#3-application-層query)
 4. [Infrastructure 層（Repository）](#4-infrastructure-層repository)
 5. [Infrastructure 層（QueryService）](#5-infrastructure-層queryservice)
-6. [Web 層（MVC Controller）](#6-web-層mvc-controller)
-7. [Web 層（Blazor Server）](#7-web-層blazor-server)
+6. [Web 層（MVC Controller）](#6-web-層mvc-controller) → パターン A 参照
+7. [Web 層（Blazor Server）](#7-web-層blazor-server) → パターン B / C 参照
 8. [Web 層（Web API）](#8-web-層web-api)
 9. [CSS（ITCSS + Every Layout）](#9-cssitcss--every-layout)
 10. [単体テスト（xUnit）](#10-単体テストxunit)
 11. [E2E テスト（gauge + Playwright）](#11-e2e-テストgauge--playwright)
-
-> **高度なパターン（別ファイル）**
-> - [SKILL-ADVANCED-PATTERNS.md](SKILL-ADVANCED-PATTERNS.md) — インライン編集テーブルによる一画面 CRUD / UnitOfWork パターン
 
 ---
 
@@ -257,6 +268,9 @@ public class TodoQueryService : ITodoQueryService
 
 ## 6. Web 層（MVC Controller）
 
+> **パターン A: MVC フルサイクル CRUD** の詳細実装は [SKILL-PATTERN-MVC.md](SKILL-PATTERN-MVC.md) を参照してください。  
+> 下記は設計原則とポイントのみ記載しています。
+
 **場所**: `MyTodo.Web/Controllers/`
 
 ### 設計原則
@@ -328,6 +342,12 @@ public class TodosController : Controller
 ---
 
 ## 7. Web 層（Blazor Server）
+
+> Blazor パターンには 2 種類あります。目的に合ったファイルを参照してください。
+> - **パターン B: Blazor リアルタイム CRUD** → [SKILL-PATTERN-BLAZOR-SPA.md](SKILL-PATTERN-BLAZOR-SPA.md)（一覧起点の SPA ライク CRUD）
+> - **パターン C: Blazor 一括インライン編集** → [SKILL-PATTERN-BLAZOR-BULK.md](SKILL-PATTERN-BLAZOR-BULK.md)（テーブル行編集 + UnitOfWork）
+>
+> 下記は設計原則とポイントのみ記載しています。
 
 **場所**: `MyTodo.Web/BlazorComponents/`
 
