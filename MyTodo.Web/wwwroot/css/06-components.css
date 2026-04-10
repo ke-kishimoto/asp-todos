@@ -57,6 +57,12 @@
   background-color: var(--color-bg-muted);
 }
 
+/* ── サイトコンテンツ（Sticky Footer 用ラッパー） ──────────── */
+
+.site-content {
+  flex: 1;
+}
+
 /* ── サイトフッター ─────────────────────────────────────────── */
 
 .site-footer {
