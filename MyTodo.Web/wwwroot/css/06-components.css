@@ -474,3 +474,27 @@
 .def-list dd {
   margin: 0;
 }
+
+
+/* ── ASP.NET バリデーション ──────────────────────────────────── */
+
+/* 無効な入力フィールドに ASP.NET が付与するクラス */
+.input-validation-error {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+}
+
+.input-validation-error:focus {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.3);
+}
+
+/* フィールドバリデーションメッセージ（正常時は非表示） */
+.field-validation-valid {
+  display: none;
+}
+
+/* バリデーションサマリー（正常時は非表示） */
+.validation-summary-valid {
+  display: none;
+}
