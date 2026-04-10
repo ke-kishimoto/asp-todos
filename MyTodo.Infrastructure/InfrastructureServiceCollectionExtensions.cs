@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyTodo.Application.Queries.Categories;
-using MyTodo.Application.Queries.Items;
 using MyTodo.Application.Queries.Todos;
 using MyTodo.Application.Repositories;
 using MyTodo.Infrastructure.Data;
@@ -23,12 +22,10 @@ public static class InfrastructureServiceCollectionExtensions
                 .UseSnakeCaseNamingConvention());
 
         services.AddScoped<ITodoRepository, EfTodoRepository>();
-        services.AddScoped<IItemRepository, EfItemRepository>();
         services.AddScoped<ICategoryRepository, EfCategoryRepository>();
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 
         services.AddScoped<ITodoQueryService, TodoQueryService>();
-        services.AddScoped<IItemQueryService, ItemQueryService>();
         services.AddScoped<ICategoryQueryService, CategoryQueryService>();
 
         return services;

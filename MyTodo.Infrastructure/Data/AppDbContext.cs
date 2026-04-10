@@ -36,10 +36,6 @@ public class AppDbContext : DbContext
     //   await _db.SaveChangesAsync();                       // 実際にDBへ送信
     // ---------------------------------------------------------------
     public DbSet<TodoItemEntity> Todos { get; set; }
-    
-    public DbSet<ItemEntity> Items { get; set; }
-
-    public DbSet<ProductEntity> Products { get; set; }
 
     public DbSet<CategoryEntity> Categories { get; set; }
 
@@ -78,36 +74,6 @@ public class AppDbContext : DbContext
             entity.Property(e => e.CreatedAt)
                   .HasDefaultValueSql("GETUTCDATE()");
         });
-
-        modelBuilder.Entity<ItemEntity>(entity => {
-            entity.ToTable("items");
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id)
-                  .ValueGeneratedOnAdd();
-            entity.Property(e => e.ItemCode)
-                  .IsRequired()
-                  .HasMaxLength(50);
-            entity.Property(e => e.ItemName)
-                  .IsRequired()
-                  .HasMaxLength(100);
-            entity.Property(e => e.Price)
-                  .HasDefaultValue(0);
-        });
-
-            modelBuilder.Entity<ProductEntity>(entity => {
-                  entity.ToTable("products");
-                  entity.HasKey(e => e.Id);
-                  entity.Property(e => e.Id)
-                        .ValueGeneratedOnAdd();
-                  entity.Property(e => e.ProductCode)
-                        .IsRequired()
-                        .HasMaxLength(50);
-                  entity.Property(e => e.ProductName)
-                        .IsRequired()
-                        .HasMaxLength(100);
-                  entity.Property(e => e.Price)
-                        .HasDefaultValue(0);
-            });
 
             modelBuilder.Entity<CategoryEntity>(entity => {
                   entity.ToTable("categories");
