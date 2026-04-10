@@ -54,7 +54,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<TodoItemEntity>(entity =>
         {
             // テーブル名の明示（省略すると DbSet プロパティ名 "Todos" が使われる）
-            entity.ToTable("Todos");
+            entity.ToTable("todos");
 
             // 主キー（デフォルトで Id という名前のプロパティが主キーになるが明示）
             entity.HasKey(e => e.Id);
@@ -78,7 +78,7 @@ public class AppDbContext : DbContext
         });
 
         modelBuilder.Entity<ItemEntity>(entity => {
-            entity.ToTable("Items");
+            entity.ToTable("items");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id)
                   .ValueGeneratedOnAdd();
@@ -93,7 +93,7 @@ public class AppDbContext : DbContext
         });
 
             modelBuilder.Entity<ProductEntity>(entity => {
-                  entity.ToTable("Products");
+                  entity.ToTable("products");
                   entity.HasKey(e => e.Id);
                   entity.Property(e => e.Id)
                         .ValueGeneratedOnAdd();

@@ -18,7 +18,8 @@ public static class InfrastructureServiceCollectionExtensions
     {
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection")));
+                configuration.GetConnectionString("DefaultConnection"))
+                .UseSnakeCaseNamingConvention());
 
         services.AddScoped<ITodoRepository, EfTodoRepository>();
         services.AddScoped<IItemRepository, EfItemRepository>();
