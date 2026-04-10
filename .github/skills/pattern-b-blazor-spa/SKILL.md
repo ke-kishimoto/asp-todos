@@ -65,19 +65,19 @@ TodoList.razor（親）
 
 ### 1. Application 層 — ReadModel & QueryService インターフェース
 
-MVC パターンと共通です。`SKILL-PATTERN-MVC.md` の「2. Application 層」を参照してください。
+MVC パターンと共通です。[pattern-a-mvc/SKILL.md](../pattern-a-mvc/SKILL.md) の「2. Application 層」を参照してください。
 
 ---
 
 ### 2. Application 層 — Command & Handler
 
-MVC パターンと共通です。`SKILL-PATTERN-MVC.md` の「3. Application 層」を参照してください。
+MVC パターンと共通です。[pattern-a-mvc/SKILL.md](../pattern-a-mvc/SKILL.md) の「3. Application 層」を参照してください。
 
 ---
 
 ### 3. Infrastructure 層
 
-MVC パターンと共通です。`SKILL-PATTERN-MVC.md` の「4-5. Infrastructure 層」を参照してください。
+MVC パターンと共通です。[pattern-a-mvc/SKILL.md](../pattern-a-mvc/SKILL.md) の「4-5. Infrastructure 層」を参照してください。
 
 ---
 
@@ -306,4 +306,4 @@ public class BlazorTodosController : Controller
 
 ### 8. DI 登録
 
-MVC パターンと共通です。`SKILL-PATTERN-MVC.md` の「8. DI 登録」を参照してください。
+MVC パターンと共通です。[pattern-a-mvc/SKILL.md](../pattern-a-mvc/SKILL.md) の「8. DI 登録」を参照してください。

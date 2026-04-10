@@ -10,9 +10,12 @@
 
 | パターン | 名称 | 採用シナリオ | SKILL ファイル |
 |---|---|---|---|
-| **A** | MVC フルサイクル CRUD | HTTP 画面遷移型の標準 CRUD | [SKILL-PATTERN-MVC.md](SKILL-PATTERN-MVC.md) |
-| **B** | Blazor リアルタイム CRUD | 一覧起点のリアルタイム操作（SPA ライク） | [SKILL-PATTERN-BLAZOR-SPA.md](SKILL-PATTERN-BLAZOR-SPA.md) |
-| **C** | Blazor 一括インライン編集 | テーブル行を直接編集して一括保存 + トランザクション | [SKILL-PATTERN-BLAZOR-BULK.md](SKILL-PATTERN-BLAZOR-BULK.md) |
+| **A** | MVC フルサイクル CRUD | HTTP 画面遷移型の標準 CRUD | [pattern-a-mvc/SKILL.md](../pattern-a-mvc/SKILL.md) |
+| **B** | Blazor リアルタイム CRUD | 一覧起点のリアルタイム操作（SPA ライク） | [pattern-b-blazor-spa/SKILL.md](../pattern-b-blazor-spa/SKILL.md) |
+| **C** | Blazor 一括インライン編集 | テーブル行を直接編集して一括保存 + トランザクション | [pattern-c-blazor-bulk/SKILL.md](../pattern-c-blazor-bulk/SKILL.md) |
+| **D** | 親子一体 CRUD | 受注ヘッダー＋明細行の同時編集（集約ルート） | [pattern-d-master-detail/SKILL.md](../pattern-d-master-detail/SKILL.md) |
+| **E** | ステータス遷移 | 業務伝票のライフサイクル管理（承認・出荷フロー） | [pattern-e-status-transition/SKILL.md](../pattern-e-status-transition/SKILL.md) |
+| **F** | 多条件検索＋ページング | 業務一覧の絞り込み検索・ページング・ソート | [pattern-f-search-paging/SKILL.md](../pattern-f-search-paging/SKILL.md) |
 
 各パターンファイルには、Domain → Application → Infrastructure → Web の全スタック実装例が含まれています。
 
@@ -31,6 +34,11 @@
 9. [CSS（ITCSS + Every Layout）](#9-cssitcss--every-layout)
 10. [単体テスト（xUnit）](#10-単体テストxunit)
 11. [E2E テスト（gauge + Playwright）](#11-e2e-テストgauge--playwright)
+
+> **業務パターン（別ファイル）**
+> - [パターン D - 親子一体 CRUD](../pattern-d-master-detail/SKILL.md)
+> - [パターン E - ステータス遷移](../pattern-e-status-transition/SKILL.md)
+> - [パターン F - 多条件検索＋ページング](../pattern-f-search-paging/SKILL.md)
 
 ---
 
@@ -268,7 +276,7 @@ public class TodoQueryService : ITodoQueryService
 
 ## 6. Web 層（MVC Controller）
 
-> **パターン A: MVC フルサイクル CRUD** の詳細実装は [SKILL-PATTERN-MVC.md](SKILL-PATTERN-MVC.md) を参照してください。  
+> **パターン A: MVC フルサイクル CRUD** の詳細実装は [pattern-a-mvc/SKILL.md](../pattern-a-mvc/SKILL.md) を参照してください。  
 > 下記は設計原則とポイントのみ記載しています。
 
 **場所**: `MyTodo.Web/Controllers/`
@@ -344,8 +352,8 @@ public class TodosController : Controller
 ## 7. Web 層（Blazor Server）
 
 > Blazor パターンには 2 種類あります。目的に合ったファイルを参照してください。
-> - **パターン B: Blazor リアルタイム CRUD** → [SKILL-PATTERN-BLAZOR-SPA.md](SKILL-PATTERN-BLAZOR-SPA.md)（一覧起点の SPA ライク CRUD）
-> - **パターン C: Blazor 一括インライン編集** → [SKILL-PATTERN-BLAZOR-BULK.md](SKILL-PATTERN-BLAZOR-BULK.md)（テーブル行編集 + UnitOfWork）
+> - **パターン B: Blazor リアルタイム CRUD** → [pattern-b-blazor-spa/SKILL.md](../pattern-b-blazor-spa/SKILL.md)（一覧起点の SPA ライク CRUD）
+> - **パターン C: Blazor 一括インライン編集** → [pattern-c-blazor-bulk/SKILL.md](../pattern-c-blazor-bulk/SKILL.md)（テーブル行編集 + UnitOfWork）
 >
 > 下記は設計原則とポイントのみ記載しています。
 
