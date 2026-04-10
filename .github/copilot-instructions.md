@@ -23,6 +23,20 @@ dotnetSample.sln
 
 ## アーキテクチャ方針
 
+### UnitOfWork
+
+複数のリポジトリ操作（追加・更新・削除の混在）を **1 つのトランザクション** にまとめる場合は `IUnitOfWork` を使用します。
+
+- `IUnitOfWork` インターフェース: `MyTodo.Application/Repositories/` に定義
+- `EfUnitOfWork` 実装: `MyTodo.Infrastructure/Repositories/` に配置
+- **UnitOfWork 対応リポジトリは `SaveChangesAsync()` を呼ばない**（変更を EF ChangeTracker に積むだけ）
+- CommandHandler が `BeginTransactionAsync()` → 操作 → `CommitAsync()` / `RollbackAsync()` でトランザクション境界を制御
+- 通常の 1 操作ずつ保存するリポジトリ（`EfTodoRepository` 等）は従来どおり自前で `SaveChangesAsync()` を呼ぶ
+
+詳細は [.github/skills/SKILL-ADVANCED-PATTERNS.md](.github/skills/SKILL-ADVANCED-PATTERNS.md) を参照。
+
+---
+
 ### クリーンアーキテクチャ
 
 依存の方向は常に **外側 → 内側** です。Domain 層は他の層を参照しません。
@@ -54,7 +68,8 @@ MyTodo.Domain  ←  MyTodo.Infrastructure（Interfaceを通じて逆依存）
 
 詳細なコーディングパターンは以下の SKILL ファイルを参照してください。
 
-- [.github/skills/SKILL.md](.github/skills/SKILL.md)
+- [.github/skills/SKILL.md](.github/skills/SKILL.md) — 各層の基本実装パターン
+- [.github/skills/SKILL-ADVANCED-PATTERNS.md](.github/skills/SKILL-ADVANCED-PATTERNS.md) — インライン編集テーブルによる一画面 CRUD / UnitOfWork パターン
 
 ---
 
@@ -64,6 +79,7 @@ MyTodo.Domain  ←  MyTodo.Infrastructure（Interfaceを通じて逆依存）
 |---|---|
 | 画面遷移・通常の CRUD 操作 | **MVC** (Controller + Razor View) |
 | 動的な行追加・インタラクティブな操作 | **Blazor Server** |
+| 一覧表内で複数行を一括 CRUD（インライン編集） | **Blazor Server**（インライン編集テーブルパターン） |
 | 外部クライアント向けデータ提供 | **Web API** (JSON) |
 
 ### URL 設計

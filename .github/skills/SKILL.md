@@ -18,6 +18,9 @@
 10. [単体テスト（xUnit）](#10-単体テストxunit)
 11. [E2E テスト（gauge + Playwright）](#11-e2e-テストgauge--playwright)
 
+> **高度なパターン（別ファイル）**
+> - [SKILL-ADVANCED-PATTERNS.md](SKILL-ADVANCED-PATTERNS.md) — インライン編集テーブルによる一画面 CRUD / UnitOfWork パターン
+
 ---
 
 ## 1. Domain 層
