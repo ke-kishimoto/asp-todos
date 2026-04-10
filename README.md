@@ -171,8 +171,7 @@ docker compose up -d
 ### 2. データベースを作成する（マイグレーション）
 
 ```bash
-cd MyTodo.Web
-dotnet ef database update
+dotnet ef database update --project ../MyTodo.Infrastructure --startup-project ../MyTodo.Web
 ```
 
 ### 3. アプリケーションを起動する
@@ -181,10 +180,22 @@ dotnet ef database update
 dotnet run --project MyTodo.Web
 ```
 
-### 4. テストを実行する
+### 4. 単体テストを実行する
 
 ```bash
+cd TodoApp.Tests
 dotnet test
+```
+
+### 5. E2Eテストを実行する
+
+```bash
+cd MyTodo.E2E
+# 全体
+gauge run specs
+
+# 特定のスペックファイルのみ
+gauge run specs/todos/todo-list.spec
 ```
 
 ---
