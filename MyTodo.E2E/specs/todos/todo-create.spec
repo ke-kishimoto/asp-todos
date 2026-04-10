@@ -17,7 +17,7 @@
 * 要素 "tbody tr" が "1" 件表示されている
 * テーブル "todos" の内容が以下の通りである
 
-|Id|Title|Done|
+|id|title|done|
 |--|-----|----|
 |1 |New Todo|False|
 
@@ -26,10 +26,10 @@
 * 要素 "input[name='title']" に "New Todo" と入力する
 * 要素 "button[type='submit']" をクリックする
 * URL "mvc/todos" に遷移している
-* テーブル "todos" の条件 "Id = 1" のレコードの内容が以下の通りである
+* テーブル "todos" の条件 "id = 1" のレコードの内容が以下の通りである
 
 |Column|Value   |
 |------|--------|
-|Id    |1       |
-|Title |New Todo|
-|Done  |False   |
+|id    |1       |
+|title |New Todo|
+|done  |False   |

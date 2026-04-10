@@ -12,7 +12,7 @@
 * テーブル "todos" のデータを全て削除する
 * テーブル "todos" に以下の内容を投入する
 
-|Id|Title|Done|CreatedAt|
+|id|title|done|created_at|
 |--|-----|----|---------|
 |1 |Sample Todo|false|2024-06-01T10:00:00Z|
 |2 |Another Todo|true|2024-06-02T12:00:00Z|
