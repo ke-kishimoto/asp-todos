@@ -1,0 +1,215 @@
+@using MyTodo.Application.Commands.Categories
+@using MyTodo.Application.Queries.Categories
+@inject ICategoryQueryService QueryService
+@inject SaveCategoriesCommandHandler SaveHandler
+
+<stack-l space="var(--s0)">
+
+    @* ツールバー *@
+    <cluster-l space="var(--s-1)" align="center">
+        <button class="btn btn--primary" type="button" @onclick="AddRow">
+            ＋ 行追加
+        </button>
+        <button class="btn btn--success" type="button"
+                style="margin-inline-start:auto"
+                @onclick="SaveAsync"
+                disabled="@isSaving">
+            @(isSaving ? "保存中..." : "更新")
+        </button>
+    </cluster-l>
+
+    @* 成功メッセージ *@
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert--success" role="alert" style="position:relative;">
+            @successMessage
+            <button type="button" class="alert__close"
+                    @onclick="() => successMessage = string.Empty">×</button>
+        </div>
+    }
+
+    @* エラーメッセージ *@
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert--danger" role="alert" style="position:relative;">
+            @errorMessage
+            <button type="button" class="alert__close"
+                    @onclick="() => errorMessage = string.Empty">×</button>
+        </div>
+    }
+
+    @* カテゴリ一覧テーブル *@
+    @if (rows is null)
+    {
+        <p class="text-muted">読み込み中...</p>
+    }
+    else if (rows.Count == 0)
+    {
+        <p class="text-muted">カテゴリが登録されていません。「行追加」から追加してください。</p>
+    }
+    else
+    {
+        <table class="data-table data-table--hover">
+            <thead>
+                <tr>
+                    <th style="width:80px">ID</th>
+                    <th>カテゴリ名</th>
+                    <th style="width:180px">登録日時</th>
+                    <th style="width:100px" class="text-center">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in rows)
+                {
+                    var r = row;
+                    <tr class="@(r.IsDeleted ? "data-table__row--muted" : "")">
+                        <td>@(r.Id == 0 ? "新規" : r.Id.ToString())</td>
+                        <td>
+                            @if (r.IsDeleted)
+                            {
+                                <s class="text-muted">@r.Name</s>
+                            }
+                            else
+                            {
+                                <input class="form-input"
+                                       style="inline-size:100%"
+                                       type="text"
+                                       value="@r.Name"
+                                       maxlength="100"
+                                       @oninput="e => r.Name = e.Value?.ToString() ?? string.Empty"
+                                       placeholder="カテゴリ名を入力..." />
+                            }
+                        </td>
+                        <td>
+                            @(r.Id == 0 ? "（新規）" : r.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm"))
+                        </td>
+                        <td class="text-center">
+                            @if (r.IsDeleted)
+                            {
+                                <button class="btn btn--sm btn--outline"
+                                        type="button"
+                                        @onclick="() => r.IsDeleted = false">取消</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn--sm btn--outline-danger"
+                                        type="button"
+                                        @onclick="() => MarkDelete(r)">削除</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+</stack-l>
+
+@code {
+    private List<CategoryRowModel>? rows;
+    private bool isSaving = false;
+    private string successMessage = "";
+    private string errorMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var items = await QueryService.GetAllAsync();
+        rows = items
+            .Select(x => new CategoryRowModel
+            {
+                Id = x.Id,
+                Name = x.Name,
+                CreatedAt = x.CreatedAt,
+                OriginalName = x.Name,
+                IsNew = false,
+                IsDeleted = false
+            })
+            .ToList();
+    }
+
+    private void AddRow()
+    {
+        rows ??= new List<CategoryRowModel>();
+        rows.Add(new CategoryRowModel
+        {
+            Id = 0,
+            Name = "",
+            CreatedAt = DateTime.UtcNow,
+            OriginalName = "",
+            IsNew = true,
+            IsDeleted = false
+        });
+    }
+
+    private void MarkDelete(CategoryRowModel row)
+    {
+        if (row.IsNew)
+        {
+            rows!.Remove(row);
+        }
+        else
+        {
+            row.IsDeleted = true;
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (rows is null) return;
+
+        errorMessage = "";
+        successMessage = "";
+
+        var added = rows
+            .Where(r => r.IsNew && !r.IsDeleted && !string.IsNullOrWhiteSpace(r.Name))
+            .Select(r => r.Name)
+            .ToList();
+
+        var updated = rows
+            .Where(r => !r.IsNew && !r.IsDeleted && r.Name.Trim() != r.OriginalName)
+            .Select(r => new CategoryChange(r.Id, r.Name))
+            .ToList();
+
+        var deleted = rows
+            .Where(r => !r.IsNew && r.IsDeleted)
+            .Select(r => r.Id)
+            .ToList();
+
+        if (added.Count == 0 && updated.Count == 0 && deleted.Count == 0)
+        {
+            successMessage = "変更はありません。";
+            return;
+        }
+
+        isSaving = true;
+        try
+        {
+            await SaveHandler.HandleAsync(new SaveCategoriesCommand(added, updated, deleted));
+            await LoadAsync();
+            successMessage = $"更新しました（追加: {added.Count}件、更新: {updated.Count}件、削除: {deleted.Count}件）";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"保存に失敗しました: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private class CategoryRowModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public string OriginalName { get; set; } = "";
+        public DateTime CreatedAt { get; set; }
+        public bool IsNew { get; set; }
+        public bool IsDeleted { get; set; }
+    }
+}

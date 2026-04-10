@@ -1,0 +1,11 @@
+@{
+    ViewData["Title"] = "カテゴリ管理";
+}
+
+<h1>カテゴリ管理 <small class="text-muted fs-6">(MVC + Blazor)</small></h1>
+
+<component type="typeof(MyTodo.Web.BlazorComponents.CategoryList)" render-mode="ServerPrerendered" />
+
+@section Scripts {
+    <script src="_framework/blazor.server.js"></script>
+}
