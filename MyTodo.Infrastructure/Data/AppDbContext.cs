@@ -41,6 +41,8 @@ public class AppDbContext : DbContext
 
     public DbSet<ProductEntity> Products { get; set; }
 
+    public DbSet<CategoryEntity> Categories { get; set; }
+
     // ---------------------------------------------------------------
     // OnModelCreating : テーブル・カラムの詳細設定（Fluent API）
     //
@@ -49,7 +51,7 @@ public class AppDbContext : DbContext
     // ---------------------------------------------------------------
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
+         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<TodoItemEntity>(entity =>
         {
@@ -105,6 +107,18 @@ public class AppDbContext : DbContext
                         .HasMaxLength(100);
                   entity.Property(e => e.Price)
                         .HasDefaultValue(0);
+            });
+
+            modelBuilder.Entity<CategoryEntity>(entity => {
+                  entity.ToTable("categories");
+                  entity.HasKey(e => e.Id);
+                  entity.Property(e => e.Id)
+                        .ValueGeneratedOnAdd();
+                  entity.Property(e => e.CategoryName)
+                        .IsRequired()
+                        .HasMaxLength(100);
+                  entity.Property(e => e.CreatedAt)
+                        .HasDefaultValueSql("GETUTCDATE()");
             });
     }
 
