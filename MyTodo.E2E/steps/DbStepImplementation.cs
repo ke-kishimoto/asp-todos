@@ -261,6 +261,14 @@ namespace DotNet.Template.Steps
             }
         }
 
+        [Step("<dbType> で <sql> の実行結果が <expected> である")]
+        public void ExecuteScalarWithDbType(string dbType, string sql, string expected)
+        {
+            var actual = DatabaseHelper.ExecuteScalarAsync(sql, ParseDbType(dbType)).GetAwaiter().GetResult();
+            actual.ShouldBe(expected,
+                $"[{dbType}] クエリ '{sql}' の実行結果が一致しません");
+        }
+
         [Step("<dbType> でSQL <sql> を実行する")]
         public void ExecuteSqlWithDbType(string dbType, string sql)
         {
@@ -291,8 +299,8 @@ namespace DotNet.Template.Steps
 
         private static TestDbType ParseDbType(string value) => value.Trim().ToLowerInvariant() switch
         {
-            "sqlserver" => TestDbType.SqlServer,
-            "postgresql" or "postgres" => TestDbType.PostgreSql,
+            "sqlserver" or "sql server" => TestDbType.SqlServer,
+            "postgresql" or "postgres" or "postgre sql" => TestDbType.PostgreSql,
             _ => throw new ArgumentException(
                      $"不明な DB 種別: \"{value}\"。\"SqlServer\" または \"PostgreSql\" を指定してください。")
         };

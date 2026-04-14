@@ -258,6 +258,46 @@ namespace DotNet.Template.Helpers
             await cmd.ExecuteNonQueryAsync();
         }
 
+        /// <summary>
+        /// SQL 文字列を実行し、最初の行の最初の列の値を文字列として返します。
+        /// SELECT 式のスカラー値検証に使用します。
+        /// </summary>
+        public static async Task<string> ExecuteScalarAsync(string sql)
+        {
+            var config = DbConfig.Load();
+
+            await using var conn = new SqlConnection(config.ConnectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new SqlCommand(sql.Trim(), conn)
+            {
+                CommandTimeout = config.CommandTimeout
+            };
+            var result = await cmd.ExecuteScalarAsync();
+            return result?.ToString() ?? string.Empty;
+        }
+
+        /// <summary>
+        /// SQL 文字列を指定した DB 種別で実行し、最初の行の最初の列の値を文字列として返します。
+        /// SELECT 式のスカラー値検証に使用します。
+        /// </summary>
+        public static async Task<string> ExecuteScalarAsync(string sql, TestDbType dbType)
+        {
+            if (dbType == TestDbType.SqlServer) return await ExecuteScalarAsync(sql);
+
+            var config = DbConfig.Load();
+
+            await using var conn = new NpgsqlConnection(config.PostgreSqlConnectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(sql.Trim(), conn)
+            {
+                CommandTimeout = config.CommandTimeout
+            };
+            var result = await cmd.ExecuteScalarAsync();
+            return result?.ToString() ?? string.Empty;
+        }
+
         // -------------------------------------------------------------------
         // DbType 引数付きオーバーロード（PostgreSQL 対応）
         // -------------------------------------------------------------------
