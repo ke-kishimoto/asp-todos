@@ -1,4 +1,5 @@
 # Todo Create
+tags: browser
 * テーブル "todos" のデータを全て削除する
 
 ## Todoが作成できる CSV確認ver

@@ -1,4 +1,5 @@
 # Todo Detail
+tags: browser
 
 ## Todoの詳細が表示されている
 * URL "mvc/todos/details?id=1" を開く

@@ -14,7 +14,7 @@ namespace DotNet.Template.Hooks
         private const string KeyContext = "pw:context";
         private const string KeyBaseUrl = "pw:base_url";
 
-        [BeforeScenario]
+        [BeforeScenario("browser")]
         public async Task Setup()
         {
             var config = PlaywrightConfig.Load();
@@ -52,7 +52,7 @@ namespace DotNet.Template.Hooks
             }
         }
 
-        [AfterScenario]
+        [AfterScenario("browser")]
         public async Task Teardown()
         {
             var page = ScenarioDataStore.Get<IPage>(KeyPage);

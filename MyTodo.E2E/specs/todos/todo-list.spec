@@ -1,4 +1,5 @@
 # Todo list
+tags: browser
 
 ## 一覧が表示されている CsvPath
 * テーブル "todos" のデータを全て削除する
