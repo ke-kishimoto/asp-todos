@@ -2,6 +2,7 @@
 using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.Data.SqlClient;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -258,6 +259,181 @@ namespace DotNet.Template.Helpers
         }
 
         // -------------------------------------------------------------------
+        // DbType 引数付きオーバーロード（PostgreSQL 対応）
+        // -------------------------------------------------------------------
+
+        /// <summary>
+        /// SQL 文字列を指定した DB 種別で実行します。
+        /// SQL Server では GO バッチ区切りに対応します。PostgreSQL では対応しません。
+        /// </summary>
+        public static async Task ExecuteSqlAsync(string sql, TestDbType dbType)
+        {
+            if (dbType == TestDbType.SqlServer) { await ExecuteSqlAsync(sql); return; }
+
+            var config = DbConfig.Load();
+            await using var conn = new NpgsqlConnection(config.PostgreSqlConnectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(sql.Trim(), conn)
+            {
+                CommandTimeout = config.CommandTimeout
+            };
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        /// <summary>
+        /// 指定 DB のテーブルの全データを削除します。
+        /// </summary>
+        public static async Task TruncateTableAsync(string tableName, TestDbType dbType)
+        {
+            if (dbType == TestDbType.SqlServer) { await TruncateTableAsync(tableName); return; }
+
+            var safeName = EscapeTableNamePg(tableName);
+            await ExecuteSqlAsync($"TRUNCATE TABLE {safeName};", dbType);
+        }
+
+        /// <summary>
+        /// DataTable を指定 DB のテーブルに一括挿入します。
+        /// </summary>
+        public static Task InsertDataTableAsync(string tableName, DataTable dataTable, TestDbType dbType)
+        {
+            if (dbType == TestDbType.SqlServer) return InsertDataTableAsync(tableName, dataTable);
+            return BulkInsertPgAsync(tableName, dataTable);
+        }
+
+        /// <summary>
+        /// CSV ファイルから読み込んで指定 DB のテーブルに一括挿入します。
+        /// </summary>
+        public static async Task InsertFromCsvAsync(string tableName, string relativePath, TestDbType dbType)
+        {
+            var fullPath  = ResolvePath(relativePath);
+            var dataTable = ReadCsvToDataTable(fullPath);
+            await InsertDataTableAsync(tableName, dataTable, dbType);
+        }
+
+        /// <summary>
+        /// 指定 DB のテーブルを全行取得してリストで返します。
+        /// </summary>
+        public static async Task<List<Dictionary<string, string>>> QueryTableRowsAsync(
+            string tableName, string? orderByColumn, TestDbType dbType)
+        {
+            if (dbType == TestDbType.SqlServer)
+                return await QueryTableRowsAsync(tableName, orderByColumn);
+
+            var config   = DbConfig.Load();
+            var safeName = EscapeTableNamePg(tableName);
+            var result   = new List<Dictionary<string, string>>();
+
+            await using var conn = new NpgsqlConnection(config.PostgreSqlConnectionString);
+            await conn.OpenAsync();
+
+            var orderBy = orderByColumn != null
+                ? $" ORDER BY \"{orderByColumn.Trim('"')}\""
+                : string.Empty;
+
+            await using var cmd = new NpgsqlCommand($"SELECT * FROM {safeName}{orderBy};", conn)
+            {
+                CommandTimeout = config.CommandTimeout
+            };
+            await using var reader = await cmd.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                var row = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                for (var i = 0; i < reader.FieldCount; i++)
+                    row[reader.GetName(i)] = reader[i]?.ToString() ?? string.Empty;
+                result.Add(row);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// WHERE 句を指定して指定 DB のテーブルからデータを取得します。
+        /// </summary>
+        public static async Task<List<Dictionary<string, string>>> QueryWithConditionAsync(
+            string tableName, string condition, TestDbType dbType)
+        {
+            if (dbType == TestDbType.SqlServer)
+                return await QueryWithConditionAsync(tableName, condition);
+
+            var config   = DbConfig.Load();
+            var safeName = EscapeTableNamePg(tableName);
+            var result   = new List<Dictionary<string, string>>();
+
+            await using var conn = new NpgsqlConnection(config.PostgreSqlConnectionString);
+            await conn.OpenAsync();
+
+            var query = $"SELECT * FROM {safeName} WHERE {condition};";
+            await using var cmd = new NpgsqlCommand(query, conn)
+            {
+                CommandTimeout = config.CommandTimeout
+            };
+            await using var reader = await cmd.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                var row = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                for (var i = 0; i < reader.FieldCount; i++)
+                    row[reader.GetName(i)] = reader[i]?.ToString() ?? string.Empty;
+                result.Add(row);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 引数なしのストアドプロシージャを指定 DB で実行します。
+        /// </summary>
+        public static async Task ExecuteStoredProcedureAsync(string procName, TestDbType dbType)
+        {
+            if (dbType == TestDbType.SqlServer) { await ExecuteStoredProcedureAsync(procName); return; }
+
+            var config   = DbConfig.Load();
+            var safeName = EscapeTableNamePg(procName);
+
+            await using var conn = new NpgsqlConnection(config.PostgreSqlConnectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(safeName, conn)
+            {
+                CommandType    = CommandType.StoredProcedure,
+                CommandTimeout = config.CommandTimeout
+            };
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        /// <summary>
+        /// パラメータ付きのストアドプロシージャを指定 DB で実行します。
+        /// </summary>
+        public static async Task ExecuteStoredProcedureAsync(
+            string procName, Dictionary<string, object?> parameters, TestDbType dbType)
+        {
+            if (dbType == TestDbType.SqlServer)
+            {
+                await ExecuteStoredProcedureAsync(procName, parameters);
+                return;
+            }
+
+            var config   = DbConfig.Load();
+            var safeName = EscapeTableNamePg(procName);
+
+            await using var conn = new NpgsqlConnection(config.PostgreSqlConnectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new NpgsqlCommand(safeName, conn)
+            {
+                CommandType    = CommandType.StoredProcedure,
+                CommandTimeout = config.CommandTimeout
+            };
+
+            foreach (var param in parameters)
+                cmd.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
+
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        // -------------------------------------------------------------------
 
         private static DataTable ReadCsvToDataTable(string fullPath)
         {
@@ -318,7 +494,42 @@ namespace DotNet.Template.Helpers
             await bulk.WriteToServerAsync(dataTable);
         }
 
-        /// <summary>テーブル名をスキーマ付きで角括弧エスケープする</summary>
+        /// <summary>DataTable を PostgreSQL のテーブルにパラメータ付き INSERT で一行ずつ挿入する</summary>
+        private static async Task BulkInsertPgAsync(string tableName, DataTable dataTable)
+        {
+            if (dataTable.Rows.Count == 0) return;
+
+            var config   = DbConfig.Load();
+            var safeName = EscapeTableNamePg(tableName);
+
+            await using var conn = new NpgsqlConnection(config.PostgreSqlConnectionString);
+            await conn.OpenAsync();
+
+            // INSERT INTO "public"."tbl" ("col1","col2",...) VALUES (@p0,@p1,...)
+            var colNames  = new List<string>();
+            var paramRefs = new List<string>();
+            for (var c = 0; c < dataTable.Columns.Count; c++)
+            {
+                colNames.Add($"\"{dataTable.Columns[c].ColumnName}\"");
+                paramRefs.Add($"@p{c}");
+            }
+
+            var insertSql = $"INSERT INTO {safeName} ({string.Join(",", colNames)}) VALUES ({string.Join(",", paramRefs)});";
+
+            foreach (DataRow row in dataTable.Rows)
+            {
+                await using var cmd = new NpgsqlCommand(insertSql, conn)
+                {
+                    CommandTimeout = config.CommandTimeout
+                };
+                for (var c = 0; c < dataTable.Columns.Count; c++)
+                    cmd.Parameters.AddWithValue($"p{c}", row[c] == DBNull.Value ? DBNull.Value : row[c]);
+
+                await cmd.ExecuteNonQueryAsync();
+            }
+        }
+
+        /// <summary>テーブル名をスキーマ付きで角括弧エスケープする（SQL Server 用）</summary>
         private static string EscapeTableName(string tableName)
         {
             // "dbo.TableName" や "TableName" の形式に対応
@@ -326,6 +537,23 @@ namespace DotNet.Template.Helpers
             var escaped = new List<string>();
             foreach (var part in parts)
                 escaped.Add($"[{part.Trim('[', ']')}]");
+            return string.Join(".", escaped);
+        }
+
+        /// <summary>テーブル名をスキーマ付きでダブルクォートエスケープする（PostgreSQL 用）
+        /// スキーマ指定なし (例: todos) の場合は "public"."todos" に補完します。
+        /// </summary>
+        private static string EscapeTableNamePg(string tableName)
+        {
+            var parts = tableName.Split('.');
+            var escaped = new List<string>();
+            foreach (var part in parts)
+                escaped.Add($"\"{part.Trim('"')}\"");
+
+            // スキーマ未指定の場合は "public" を補完
+            if (escaped.Count == 1)
+                escaped.Insert(0, "\"public\"");
+
             return string.Join(".", escaped);
         }
 

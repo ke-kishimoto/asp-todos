@@ -12,12 +12,30 @@ namespace DotNet.Template.Config
     {
         private readonly Dictionary<string, string> _props;
 
-        /// <summary>SQL Server 接続文字列</summary>
+        /// <summary>SQL Server 接続文字列（後方互換用。db_connection_string キーを読み込みます）</summary>
         public string ConnectionString => Get("db_connection_string",
             "Server=localhost;Database=mydb;Integrated Security=true;TrustServerCertificate=true;");
 
+        /// <summary>SQL Server 専用の接続文字列。sqlserver_connection_string キーを優先し、未設定なら ConnectionString にフォールバックします</summary>
+        public string SqlServerConnectionString =>
+            _props.TryGetValue("sqlserver_connection_string", out var v) && !string.IsNullOrWhiteSpace(v)
+                ? v
+                : ConnectionString;
+
+        /// <summary>PostgreSQL 接続文字列</summary>
+        public string PostgreSqlConnectionString => Get("postgresql_connection_string",
+            "Host=localhost;Port=5432;Database=mydb;Username=postgres;Password=postgres;");
+
         /// <summary>コマンドタイムアウト (秒)</summary>
         public int CommandTimeout => int.Parse(Get("db_command_timeout", "30"));
+
+        /// <summary>TestDbType に応じた接続文字列を返します</summary>
+        public string GetConnectionString(TestDbType dbType) => dbType switch
+        {
+            TestDbType.SqlServer  => SqlServerConnectionString,
+            TestDbType.PostgreSql => PostgreSqlConnectionString,
+            _                     => SqlServerConnectionString,
+        };
 
         private DbConfig(Dictionary<string, string> props)
         {
