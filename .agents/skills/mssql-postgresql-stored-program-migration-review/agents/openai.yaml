@@ -1,0 +1,4 @@
+interface:
+  display_name: "MSSQL PG Migration Review"
+  short_description: "Review MSSQL stored programs against PostgreSQL."
+  default_prompt: "Use $mssql-postgresql-stored-program-migration-review to annotate the attached MSSQL stored program and compare it with the matching PostgreSQL function."
