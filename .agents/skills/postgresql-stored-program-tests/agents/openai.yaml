@@ -1,0 +1,4 @@
+interface:
+  display_name: "PostgreSQL Stored Program Tests"
+  short_description: "Create E2E specs and fixtures for PostgreSQL stored programs."
+  default_prompt: "Use $postgresql-stored-program-tests to create E2E test specs and fixtures for the attached PostgreSQL function or procedure."
