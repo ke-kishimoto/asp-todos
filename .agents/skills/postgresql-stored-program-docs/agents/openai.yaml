@@ -1,0 +1,4 @@
+interface:
+  display_name: "PostgreSQL Stored Program Docs"
+  short_description: "Create Japanese docs for PostgreSQL stored programs."
+  default_prompt: "Use $postgresql-stored-program-docs to document the attached PostgreSQL procedure or function SQL file."
